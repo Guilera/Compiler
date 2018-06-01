@@ -1,8 +1,7 @@
 # A Linguagem
 ## Convenção Léxica
 1. Palavras revervadas (**keywords**) são as seguintes:
-
-**```else   if   int   return   void   while```**
+<pre><b>else   if   int   return   void   while</b></pre>
 Não podem ser usadas como nomes de variáveis/funções, e devem ser escritas em minúsculo.
 
 2. Símbolos especiais são:
