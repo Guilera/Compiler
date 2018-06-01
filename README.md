@@ -7,14 +7,18 @@ Não podem ser usadas como nomes de variáveis/funções, e devem ser escritas e
 
 2. Símbolos especiais são:
 
-```+  -  *  /  <  <=  >  >=  ==  !=  =  ;  ,  (  )  [  ]  {  }  /*  */```
+```
++  -  *  /  <  <=  >  >=  ==  !=  =  ;  ,  (  )  [  ]  {  }  /*  */
+```
 
 3. Outros lexemas são **ID** e **NUM**, definidas pelas seguintes expressões regulares:
 
-```ID = letter (letter | digit)*
+```
+ID = letter (letter | digit)*
 NUM = digit digit*
 letter = a | .. | z | A | .. | Z
-digit = 0 | .. | 9```
+digit = 0 | .. | 9
+```
 Há distinção entre letras em maiúsculo ou minúsculo.
 
 4. Espaços em branco consistem em caracter branco (' '), quebra-de-linha ('\n'), e tabs ('\t'). Devem ser ignorados exceto quando for necessário separar **ID's** e **NUM's**, e palavras reservadas.
@@ -25,7 +29,8 @@ Há distinção entre letras em maiúsculo ou minúsculo.
 ## Sintaxe
 A gramática em BNF (Backus–Naur form) é descrita abaixo:
 
-```<program> ::= <declaration-list>
+```
+<program> ::= <declaration-list>
 <declaration-list> ::= <declaration-list> <declaration> | <declaration>
 <declaration> ::= <var-declaration> | <fun-declaration>
 
@@ -69,19 +74,24 @@ A gramática em BNF (Backus–Naur form) é descrita abaixo:
 
 <call> ::= ID ( <args> )
 <args> ::= <arg-list> | empty
-<arg-list> ::= <arg-list> , <expression> | <expression>```
+<arg-list> ::= <arg-list> , <expression> | <expression>
+```
 
 ## Semântica
 Para cada conjunto de regras da gramática temos uma breve explicação da semântica associada a elas:
 
-```<program> ::= <declaration-list>
+```
+<program> ::= <declaration-list>
 <declaration-list> ::= <declaration-list> <declaration> | <declaration>
-<declaration> ::= <var-declaration> | <fun-declaration>```
+<declaration> ::= <var-declaration> | <fun-declaration>
+```
 Um programa consiste de uma lista (ou sequência) de declarações, que podem ser funções ou variáveis, em qualquer ordem. É necessário haver ao menos uma declaração. Restrições semânticas são descritas a seguir (e não ocorrem em C). Todas as variáveis e funções devem ser declaradas antes de serem usadas (evitando  backpatching de referências). A última declaração em um programa precisa ser uma declaração da forma **`void main(void)`**. Note que não existem protótipos nessa linguagem, então não existe distinção entre declaração e definição (ao contrário de C).
 
 
-```<var-declaration> ::= <type-specifier> ID ; | <type-specifier> ID [ NUM ] ;
-<type-specifier> ::= int | void```
+```
+<var-declaration> ::= <type-specifier> ID ; | <type-specifier> ID [ NUM ] ;
+<type-specifier> ::= int | void
+```
 Uma declaração de variável declara uma variável de tipo inteiro ou um vetor ao qual o tipo base é um inteiro em que os índices ficarão na faixa `0 .. NUM-1`. Note que os únicos tipos básicos são `int` e `void`. Em uma declaração de variável somente o especificador de tipo `int` pode ser usado. `Void` é apenas para declarações de funções (como explicado abaixo). Note, também, que apenas uma variável pode ser declarada por declaração.
 
 
