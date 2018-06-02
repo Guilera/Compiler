@@ -5,15 +5,16 @@
 
 	#include <iostream>
 	#include <cmath>
-
+	#include <stdlib.h>
+	#include <cstdio>
+	void yyerror(const char* s);
 
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
 
-	extern void yyerror(char const* msg);
 %}
-
+  
 %union
 {
 	int ival;
@@ -22,9 +23,10 @@
 
 %token<ival> NUM
 
-%token ADD MINUS TIMES DIV LT LEQ GT GEQ EQ DIF EQTO SC COMMA LBRACE RBRACE RBRACKET LBRACKET LCBRT RCBRT ELSE IF INT RETURN VOID WHILE ID
-%type<ival>	expr
-%type<ival>	term
+%token ADD MINUS TIMES DIV LT LEQ GT GEQ EQ DIF EQTO SC COMMA LPAREN RPAREN RBRACKET LBRACKET LCBRT RCBRT ELSE IF INT RETURN VOID WHILE ID
+
+%left ADD MINUS
+%left TIMES DIV
 
 %start program
 
@@ -45,7 +47,7 @@
 //	| term '/' LITERAL_DBL	{ $$ = $1 / $3 ; }
 //	;
 
-program : declaration_list
+program : declaration_list {puts("END");} 
 	;
 
 declaration_list : declaration_list declaration 
@@ -55,14 +57,14 @@ declaration_list : declaration_list declaration
 declaration : var_declaration 
 	| fun_declaration
 
-var_declaration : type_specifier ID SC 
+var_declaration : type_specifier ID SC {puts("variable");}
 	| type_specifier ID RBRACKET NUM LBRACKET SC
 	;
 type_specifier : INT 
 	| VOID
 	;
 
-fun_declaration : type_specifier ID LBRACE params RBRACE compound_stmt
+fun_declaration : type_specifier ID LPAREN params RPAREN compound_stmt
 	;
 params : param_list 
 	| VOID
@@ -78,10 +80,10 @@ compound_stmt : LCBRT local_declarations statement_list RCBRT
 	;
 
 local_declarations : local_declarations var_declaration 
-	| empty
+	| /*empty*/
 	;
 statement_list : statement_list statement 
-	| empty
+	| /*empty*/
 	;
 
 statement : expression_stmt 
@@ -93,22 +95,22 @@ statement : expression_stmt
 expression_stmt : expression SC 
 	| ;
 
-selection_stmt : IF LBRACE expression RBRACE statement            
-    | IF LBRACE expression RBRACE statement ELSE statement
+selection_stmt : IF LPAREN expression RPAREN statement            
+    | IF LPAREN expression RPAREN statement ELSE statement
     ;
 
-iteration_stmt : WHILE LBRACE expression RBRACE statement
+iteration_stmt : WHILE LPAREN expression RPAREN statement
 	;
 
 return_stmt : RETURN SC 
 	| RETURN expression SC
 	;	
 
-expression : var = expression 
+expression : var EQ expression 
 	| simple_expression
 	;
-var : ID 
-	| ID RBRACKET expression LBRACKET
+var : ID
+	| ID LBRACKET expression RBRACKET 
 	;
 
 simple_expression : additive_expression relop additive_expression 
@@ -135,22 +137,30 @@ mulop : TIMES
 	| DIV
 	;
 
-factor : LBRACE expression RBRACE 
+factor : LPAREN expression RPAREN 
 	| var 
 	| call 
 	| NUM
 	;
 
-call : ID LBRACE args RBRACE
+call : ID LPAREN args RPAREN
 	;
 args : arg_list 
-	| empty
+	|
 	;
 arg_list : arg_list COMMA expression 
 	| expression
 	;	
 
 %%
+
+int main() {
+	yyin = stdin;
+	do { 
+		yyparse();
+	} while(!feof(yyin));
+	return 0;
+}
 
 void yyerror(char const* msg)
 {

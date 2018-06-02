@@ -1328,20 +1328,8 @@ yyreduce:
 #line 1329 "parser.tab.c" /* yacc.c:1646  */
     break;
 
-  case 37:
-#line 112 "parser.y" /* yacc.c:1646  */
-    {puts("id");}
-#line 1335 "parser.tab.c" /* yacc.c:1646  */
-    break;
 
-  case 38:
-#line 113 "parser.y" /* yacc.c:1646  */
-    {puts("array");}
-#line 1341 "parser.tab.c" /* yacc.c:1646  */
-    break;
-
-
-#line 1345 "parser.tab.c" /* yacc.c:1646  */
+#line 1333 "parser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

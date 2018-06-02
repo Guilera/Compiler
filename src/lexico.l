@@ -1,8 +1,11 @@
+%option noyywrap
+
 %{ 
     #include <iostream>      // for I/O
     #include <string.h>        // for string handling 
     #include <ctype.h>         // for character predicates
     #include <fstream>
+    #include "parser.tab.h"
     
 
 %}
@@ -19,29 +22,20 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
 
 " " {}
 \t  {}
-\n  {
-    line++;
-}    
+\n  {}    
 
-{wa} {
-    write("ERROR", yytext);
-    myfile.close();
-    return 0;
-}
+{wa} {return 0;}
 
 
 "/*"    {
     int c;
     bool ntem = true;
-    int linha = line;
     
     while((c = yyinput()) != 0) {
 
         if(c == EOF) {
             break;
-        } else if(c == '\n')
-            ++line;
-        else if(c == '*') {
+        } else if(c == '*') {
 
             if((c = yyinput()) == '/') {
                 ntem = false;
@@ -53,9 +47,6 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
     }
 
     if(ntem) {
-        line = linha;
-    	write("ERROR", "/*");
-        myfile.close();
         return 0;
     }
 }
@@ -73,8 +64,8 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
 "="     return EQTO;
 ";"     return SC;
 ","     return COMMA;
-"("     return LBRACE;
-")"     return RBRACE;
+"("     return LPAREN;
+")"     return RPAREN;
 "["     return RBRACKET;
 "]"     return LBRACKET;
 "{"     return LCBRT;
@@ -95,11 +86,7 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
 }
    
 
-. {
-    write("ERROR", yytext);   
-    myfile.close();
-    return 0;
-}
+. {return 0;}
 
   
 %%
