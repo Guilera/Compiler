@@ -1,6 +1,6 @@
 all: parser
 
-parser.tab.c parser.tab.h:	parser.y
+parser.tab.c parser.tab.h:	parser.y 
 	bison -d parser.y
 
 lex.yy.c: lexico.l parser.tab.h

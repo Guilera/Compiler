@@ -23,7 +23,7 @@
    parser generator using the skeleton or a modified version thereof
    as a parser skeleton.  Alternatively, if you modify or redistribute
    the parser skeleton itself, you may (at your option) remove this
-   special exception, which will cause the skeleton and the resulting
+   special exception, which will cause the skeleton and the resulting 
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
 
