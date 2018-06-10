@@ -21,7 +21,6 @@ void Program::print(std::ostream &os) {
   os << "[program" << std::endl;
   for(auto dec : declaration_list)
 	dec->print(os);
-  os << std::endl;
   os << "]" << std::endl;
 }
 
@@ -111,7 +110,7 @@ void Selection::print(std::ostream &os) {
 Iteration::Iteration(std::shared_ptr<Expression> expression, std::shared_ptr<Statement> statement) : expression(expression), statement(statement) {}
 
 void Iteration::print(std::ostream &os) {
-  os << "[iteration-stmt"	 << std::endl;
+  os << "[iteration-stmt" << std::endl;
   expression->print(os);
   os << std::endl;
   statement->print(os);

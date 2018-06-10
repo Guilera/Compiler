@@ -73,81 +73,81 @@
 
 %%
 
-program             : declaration_list { program.declaration_list = *$1; std::cout << "program decs" << std::endl; } // novo escopo
+program             : declaration_list { program.declaration_list = *$1; /*std::cout << "program decs" << std::endl;*/ } // novo escopo
 	                ;
 
-declaration_list    : declaration_list declaration { $1->push_back($2); std::cout << "push dec" << std::endl;}
-                    | declaration { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Declaration>>>(); $$->push_back($1); std::cout << "reduce dec to dec_list" << std::endl;}
+declaration_list    : declaration_list declaration { $1->push_back($2); /*std::cout << "push dec" << std::endl;*/ }
+                    | declaration { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Declaration>>>(); $$->push_back($1); /*std::cout << "reduce dec to dec_list" << std::endl;*/ }
 	                ;
 
-declaration         : var_declaration { $$ = $1; std::cout << "reduce var_dec to declaration" << std::endl;}
-	                | fun_declaration { $$ = $1; std::cout << "reduce fun_dec to declaration" << std::endl;}
+declaration         : var_declaration { $$ = $1; /*std::cout << "reduce var_dec to declaration" << std::endl;*/ }
+	                | fun_declaration { $$ = $1; /*std::cout << "reduce fun_dec to declaration" << std::endl;*/ }
                     ;
 
-var_declaration     : type_specifier ID SC { $$ = std::make_shared<tree::VariableDeclaration>($1, $2); std::cout << "var_dec " << $1 << " " << $2 << std::endl;}
-	                | type_specifier ID LBRACKET NUM RBRACKET SC { $$ = std::make_shared<tree::VariableDeclaration>($1, $2, $4); std::cout << "var_dec array" << std::endl;}
+var_declaration     : type_specifier ID SC { $$ = std::make_shared<tree::VariableDeclaration>($1, $2); /*std::cout << "var_dec " << $1 << " " << $2 << std::endl;*/ }
+	                | type_specifier ID LBRACKET NUM RBRACKET SC { $$ = std::make_shared<tree::VariableDeclaration>($1, $2, $4); /*std::cout << "var_dec array" << std::endl;*/ }
 	                ;
 
-type_specifier      : INT { $$ = $1; std::cout << "type int" << std::endl;}
-	                | VOID { $$ = $1; std::cout << "type void" << std::endl;}
+type_specifier      : INT { $$ = $1; /*std::cout << "type int" << std::endl;*/ }
+	                | VOID { $$ = $1; /*std::cout << "type void" << std::endl;*/ }
 	                ;
 
-fun_declaration     : type_specifier ID LPAREN params RPAREN compound_stmt { $$ = std::make_shared<tree::FunctionDeclaration>($1, $2, *$4, $6); std::cout << "fun_dec" << std::endl;}
+fun_declaration     : type_specifier ID LPAREN params RPAREN compound_stmt { $$ = std::make_shared<tree::FunctionDeclaration>($1, $2, *$4, $6); /*std::cout << "fun_dec" << std::endl;*/ }
 	                ;
 
-params              : param_list { $$ = $1; std::cout << "reduce param_list to params" << std::endl;}
-	                | VOID { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); std::cout << "create param_list(void)" << std::endl;}
+params              : param_list { $$ = $1; /*std::cout << "reduce param_list to params" << std::endl;*/ }
+	                | VOID { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); /*std::cout << "create param_list(void)" << std::endl;*/ }
 	                ;
 
-param_list          : param_list COMMA param { $1->push_back($3); $$ = $1; std::cout << "push param" << std::endl;}
-	                | param { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); $$->push_back($1); std::cout << "reduce param " << $1->id << " to param_list" << std::endl;}
+param_list          : param_list COMMA param { $1->push_back($3); $$ = $1; /*std::cout << "push param" << std::endl;*/ }
+	                | param { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); $$->push_back($1); /*std::cout << "reduce param " << $1->id << " to param_list" << std::endl;*/ }
 	                ;
 
-param               : type_specifier ID { $$ = std::make_shared<tree::Param>($1, $2); std::cout << "param " << $1 << " " << $2 << std::endl;}
-	                | type_specifier ID LBRACKET RBRACKET { $$ = std::make_shared<tree::Param>($1, $2, true); std::cout << "array param " << $1 << " " << $2 << std::endl;}
+param               : type_specifier ID { $$ = std::make_shared<tree::Param>($1, $2); /*std::cout << "param " << $1 << " " << $2 << std::endl;*/ }
+	                | type_specifier ID LBRACKET RBRACKET { $$ = std::make_shared<tree::Param>($1, $2, true); /*std::cout << "array param " << $1 << " " << $2 << std::endl;*/ }
 	                ;
 
-compound_stmt       : LCBRT local_declarations statement_list RCBRT { $$ = std::make_shared<tree::CompoundStatement>(*$2, *$3); std::cout << "reduce local+stmt to compound" << std::endl;} //novo escopo
+compound_stmt       : LCBRT local_declarations statement_list RCBRT { $$ = std::make_shared<tree::CompoundStatement>(*$2, *$3); /*std::cout << "reduce local+stmt to compound" << std::endl;*/ } //novo escopo
 	                ;
 
-local_declarations  : local_declarations var_declaration { $1->push_back($2); $$ = $1; std::cout << "push var_declaration to local_declarations" << std::endl;}
-	                | %empty { $$ = std::make_shared<std::vector<std::shared_ptr<tree::VariableDeclaration>>>(); std::cout << "reduce empty to local_declarations" << std::endl;}
+local_declarations  : local_declarations var_declaration { $1->push_back($2); $$ = $1; /*std::cout << "push var_declaration to local_declarations" << std::endl;*/ }
+	                | %empty { $$ = std::make_shared<std::vector<std::shared_ptr<tree::VariableDeclaration>>>(); /*std::cout << "reduce empty to local_declarations" << std::endl;*/ }
 	                ;
-statement_list      : statement_list statement { $1->push_back($2); $$ = $1; std::cout << "push statement to statement_list" << std::endl;}
-	                | %empty { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Statement>>>(); std::cout << "reduce empty to statement_list" << std::endl;}
+statement_list      : statement_list statement { $1->push_back($2); $$ = $1; /*std::cout << "push statement to statement_list" << std::endl;*/ }
+	                | %empty { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Statement>>>(); /*std::cout << "reduce empty to statement_list" << std::endl;*/ }
 	                ;
 
-statement           : expression_stmt { $$ = $1; std::cout << "reduce expression_stmt to statement" << std::endl;}
-	                | compound_stmt { $$ = $1; std::cout << "reduce compound_stmt to statement" << std::endl;}
-	                | selection_stmt { $$ = $1; std::cout << "reduce selection_stmt to statement" << std::endl;}
-	                | iteration_stmt { $$ = $1; std::cout << "reduce iteration_stmt to statement" << std::endl;}
-                    | return_stmt { $$ = $1; std::cout << "reduce return_stmt to statement" << std::endl;}
+statement           : expression_stmt { $$ = $1; /*std::cout << "reduce expression_stmt to statement" << std::endl;*/ }
+	                | compound_stmt { $$ = $1; /*std::cout << "reduce compound_stmt to statement" << std::endl;*/ }
+	                | selection_stmt { $$ = $1; /*std::cout << "reduce selection_stmt to statement" << std::endl;*/ }
+	                | iteration_stmt { $$ = $1; /*std::cout << "reduce iteration_stmt to statement" << std::endl;*/ }
+                    | return_stmt { $$ = $1; /*std::cout << "reduce return_stmt to statement" << std::endl;*/ }
                     ;
-expression_stmt     : expression SC { $$ = $1; std::cout << "reduce expression to expression_stmt" << std::endl;}
-	                | SC { $$ = std::make_shared<tree::Expression>(); std::cout << "reduce empty expression to expression_stmt" << std::endl;} //empty
+expression_stmt     : expression SC { $$ = $1; /*std::cout << "reduce expression to expression_stmt" << std::endl;*/ }
+	                | SC { $$ = std::make_shared<tree::Expression>(); /*std::cout << "reduce empty expression to expression_stmt" << std::endl;*/ } //empty
 	                ;
 
-selection_stmt      : IF LPAREN expression RPAREN statement %prec TAIL { $$ = std::make_shared<tree::Selection>($3, $5); std::cout << "reduce single_if to selection_stmt" << std::endl;}
-                    | IF LPAREN expression RPAREN statement ELSE statement { std::make_shared<tree::Selection>($3, $5, $7); std::cout << "reduce if+else to selection_stmt" << std::endl;}
+selection_stmt      : IF LPAREN expression RPAREN statement %prec TAIL { $$ = std::make_shared<tree::Selection>($3, $5); /*std::cout << "reduce single_if to selection_stmt" << std::endl;*/ }
+                    | IF LPAREN expression RPAREN statement ELSE statement { std::make_shared<tree::Selection>($3, $5, $7); /*std::cout << "reduce if+else to selection_stmt" << std::endl;*/ }
                     ;
 
-iteration_stmt      : WHILE LPAREN expression RPAREN statement { $$ = std::make_shared<tree::Iteration>($3, $5); std::cout << "reduce while to iteration_stmt" << std::endl;}
+iteration_stmt      : WHILE LPAREN expression RPAREN statement { $$ = std::make_shared<tree::Iteration>($3, $5); /*std::cout << "reduce while to iteration_stmt" << std::endl;*/ }
 	                ;
 
-return_stmt         : RETURN SC { $$ = std::make_shared<tree::Return>(); std::cout << "reduce empty return to return_stmt" << std::endl;}
-	                | RETURN expression SC { $$ = std::make_shared<tree::Return>($2); std::cout << "reduce return+expression to return_stmt" << std::endl;}
+return_stmt         : RETURN SC { $$ = std::make_shared<tree::Return>(); /*std::cout << "reduce empty return to return_stmt" << std::endl;*/ }
+	                | RETURN expression SC { $$ = std::make_shared<tree::Return>($2); /*std::cout << "reduce return+expression to return_stmt" << std::endl;*/ }
 	                ;
 
-expression          : var ASS expression { $$ = std::make_shared<tree::Assign>($1, $3); std::cout << "reduce assign to expr" << std::endl;}
-	                | simple_expression { $$ = $1; std::cout << "reduce simple_expr to expr" << std::endl;}
+expression          : var ASS expression { $$ = std::make_shared<tree::Assign>($1, $3); /*std::cout << "reduce assign to expr" << std::endl;*/ }
+	                | simple_expression { $$ = $1; /*std::cout << "reduce simple_expr to expr" << std::endl;*/ }
 	                ;
 
-var                 : ID { $$ = std::make_shared<tree::Variable>($1); std::cout << "simple var " << $1 << std::endl;}
-	                | ID LBRACKET expression RBRACKET { $$ = std::make_shared<tree::Variable>($1, $3); std::cout << "array var " << $1; $3->print(std::cout); std::cout << std::endl;}
+var                 : ID { $$ = std::make_shared<tree::Variable>($1); /*std::cout << "simple var " << $1 << std::endl;*/ }
+	                | ID LBRACKET expression RBRACKET { $$ = std::make_shared<tree::Variable>($1, $3); /*std::cout << "array var " << $1; $3->print(std::cout); std::cout << std::endl;*/ }
 	                ;
 
 simple_expression   : additive_expression relop additive_expression { $$ = std::make_shared<tree::BinaryOperation>($1, $2, $3); }
-                    | additive_expression { $$ = $1; std::cout << "reduce add_expr to simple_expr" << std::endl;}
+                    | additive_expression { $$ = $1; /*std::cout << "reduce add_expr to simple_expr" << std::endl;*/ }
                     ;
 relop               : LEQ { $$ = std::string("<="); }
 	                | LT { $$ = std::string("<"); }
@@ -158,7 +158,7 @@ relop               : LEQ { $$ = std::string("<="); }
 	                ;
 
 additive_expression : additive_expression addop term { $$ = std::make_shared<tree::BinaryOperation>($1, $2, $3); }
-	                | term { $$ = $1; std::cout << "reduce term to add_expr" << std::endl;}
+	                | term { $$ = $1; /*std::cout << "reduce term to add_expr" << std::endl;*/ }
 	                ;
 
 addop               : PLUS { $$ = std::string("+"); }
@@ -166,16 +166,16 @@ addop               : PLUS { $$ = std::string("+"); }
 	                ;
 
 term                : term mulop factor { $$ = std::make_shared<tree::BinaryOperation>($1, $2, $3); }
-	                | factor { $$ = $1; std::cout << "reduce factor to term" << std::endl;}
+	                | factor { $$ = $1; /*std::cout << "reduce factor to term" << std::endl;*/ }
 	                ;
 mulop               : TIMES { $$ = std::string("*"); }
 	                | DIV { $$ = std::string("/"); }
 	                ;
 
 factor              : LPAREN expression RPAREN { $$ = $2; }
-	                | var { $$ = $1; std::cout << "reduce var " << $1->id << " to factor" << std::endl;}
-	                | call { $$ = $1; std::cout << "reduce call to factor" << std::endl;}
-	                | NUM { $$ = std::make_shared<tree::Number>($1); std::cout << "reduce num " << $1 << " to factor" << std::endl;}
+	                | var { $$ = $1; /*std::cout << "reduce var " << $1->id << " to factor" << std::endl;*/ }
+	                | call { $$ = $1; /*std::cout << "reduce call to factor" << std::endl;*/ }
+	                | NUM { $$ = std::make_shared<tree::Number>($1); /*std::cout << "reduce num " << $1 << " to factor" << std::endl;*/ }
 	                ;
 
 call                : ID LPAREN args RPAREN { $$ = std::make_shared<tree::FunctionCall>($1, *$3); }
