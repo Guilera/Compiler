@@ -1,167 +1,197 @@
-%defines
-
 %{
 	#include <iostream>
 	#include <cmath>
 	#include <stdlib.h>
 	#include <cstdio>
+    #include <string>
+    #include "tree.hpp"
+
 	void yyerror(const char* s);
 
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
+	extern int yylineno;
+	tree::Program program;
 %}
   
-%union
-{
-	int ival;
-	char *id;
-};
+%code requires {
+    #include <string>
+    #include "tree.hpp"
 
-%token<ival> NUM
+    struct NEWTYPE {
+        int token, number;
+        std::string id, op;
+        std::shared_ptr<std::vector<std::shared_ptr<tree::Declaration>>> declaration_list;
+        std::shared_ptr<tree::Declaration> declaration;
+        std::shared_ptr<tree::VariableDeclaration> var_declaration;
+        std::shared_ptr<tree::FunctionDeclaration> fun_declaration;
+        std::shared_ptr<std::vector<std::shared_ptr<tree::Param>>> params;
+        std::shared_ptr<tree::Param> param;
+        std::shared_ptr<tree::CompoundStatement> compound_stmt;
+        std::shared_ptr<std::vector<std::shared_ptr<tree::VariableDeclaration>>> local_declarations;
+        std::shared_ptr<std::vector<std::shared_ptr<tree::Statement>>> statement_list;
+        std::shared_ptr<tree::Statement> statement;
+        std::shared_ptr<tree::Variable> variable;
+        std::shared_ptr<tree::Expression> expression;
+        std::shared_ptr<std::vector<std::shared_ptr<tree::Expression>>> expressions;
+    };
 
-%token ADD MINUS TIMES DIV LT LEQ GT GEQ EQ DIF EQTO SC COMMA LPAREN RPAREN RBRACKET LBRACKET LCBRT RCBRT ELSE IF INT RETURN VOID WHILE ID
+    #define YYSTYPE NEWTYPE
+}
 
-%left ADD MINUS
-%left TIMES DIV
+%token<token> INT VOID                              // type specifier
+%token<number> NUM                                  // integer value
+%token<id> ID                                       // string
+%token ELSE IF RETURN WHILE                         // keywords
+%token LT LEQ GT GEQ EQ DIF EQTO                    // relational operators
+%token SC COMMA                                     // punctuation symbols
+%token LPAREN RPAREN RBRACKET LBRACKET LCBRT RCBRT  // scopes symbols
+%token PLUS MINUS                                   // addition and subtraction operators
+%token TIMES DIV                                    // multiplication and division operators
+
+%type<declaration_list> declaration_list
+%type<declaration> declaration
+%type<var_declaration> var_declaration
+%type<token> type_specifier
+%type<fun_declaration> fun_declaration
+%type<params> params param_list
+%type<param> param
+%type<compound_stmt> compound_stmt
+%type<local_declarations> local_declarations
+%type<statement_list> statement_list
+%type<statement> statement expression_stmt selection_stmt iteration_stmt return_stmt
+%type<variable> var
+%type<expression> expression call simple_expression additive_expression term factor
+%type<op> relop addop mulop
+%type<expressions> args arg_list
 
 %start program
 
-%%
-
-//program: /* empty */ 
-//	| program expr '\n'		{ std::cout << $2 << std::endl; }  
-//	;
-//
-//expr: term	{ $$ = $1; }
-//	| expr '+' term { $$ = $1 + $3; }
-//	| expr '-' term { $$ = $1 - $3; }
-//	;
-//
-//term: LITERAL_DBL	{ $$ = $1; }
-//	| term '*' LITERAL_DBL	{ $$ = $1 * $3 ; }
-//	| term '/' LITERAL_DBL	{ $$ = $1 / $3 ; }
-//	;
-
-program : declaration_list { $$ = new Program($1)} // novo escopo
-	;
-
-declaration_list : declaration_list declaration { $$ = new DL1($1, $2);}
-	| declaration { $$ = new DL2($1);}
-	;
-
-declaration : var_declaration { $$ = new D1($1); }
-	| fun_declaration {$$ = new D2($1); }
-}
-
-var_declaration : type_specifier ID SC { $$ = new VD1($1,$2,$3);}
-	| type_specifier ID RBRACKET NUM LBRACKET SC { $$ = new VD2($1,$2,$3,$4,$5,$6);}
-	;
-type_specifier : INT {$$ = new Type("INT");}
-	| VOID {$$ = new Type("VOID");}
-	;
-
-fun_declaration : type_specifier ID LPAREN params RPAREN compound_stmt {$$ = new FD($1,$2,$3,$4,$5,$6);}
-	;
-params : param_list {$$ = new PS1($1);}
-	| VOID {$$ = new Type("VOID");}
-	;
-param_list : param_list COMMA param {$$ = new PL1($1, ',', $3);}
-	| param {$$ = new PL2($1);}
-	;
-param : type_specifier ID {$$ = new P1($1, $2);} 
-	| type_specifier ID RBRACKET LBRACKET {$$ = new P2($1, $2, $3, $4);}
-	;
-
-compound_stmt : LCBRT local_declarations statement_list RCBRT {$$ = new CS($1, $2, $3, $4);}//novo escopo
-	;
-
-local_declarations : local_declarations var_declaration {$$ = new LD($1, $2);}
-	| {$$ = NULL;} //empty
-	;
-statement_list : statement_list statement {$$ = new ST($1, $2);}
-	| {$$ = NULL;} //empty
-	;
-
-statement : expression_stmt {$$ = new S1($1);}
-	| compound_stmt {$$ = new S2($1);}
-	| selection_stmt {$$ = new S3($1);}
-	| iteration_stmt {$$ = new S4($1);}
-    | return_stmt {$$ = new S5($1);}
-    ;
-expression_stmt : expression SC {$$ = new ES1($1,$2);}
-	| {$$ = NULL;} //empty
-	;
-
-selection_stmt : IF LPAREN expression RPAREN statement {$$ = new SS1($1, $2, $3, $4, $5);}           
-    | IF LPAREN expression RPAREN statement ELSE statement {$$ = new SS2($1, $2, $3, $4, $5, $6, $7);}
-    ;
-
-iteration_stmt : WHILE LPAREN expression RPAREN statement {$$ = new IS($1, $2, $3, $4, $5);}
-	;
-
-return_stmt : RETURN SC {$$ = new RS1($1, $2);}
-	| RETURN expression SC {$$ = new RS2($1, $2, $3);}
-	;	
-
-expression : var EQ expression {$$ = new EX1($1,$2,$3);}
-	| simple_expression {$$ = new EX2($1);}
-	;
-var : ID {$$ = new V1($1);}
-	| ID LBRACKET expression RBRACKET {$$ = new V2($1,$2,$3,$4);}
-	;
-
-simple_expression : additive_expression relop additive_expression {$$ = new SE1($1,$2,$3);}
-    | additive_expression {$$ = new SE2($1);}
-    ;
-relop : LEQ {$$ = new Rop($1);}
-	| LT {$$ = new Rop($1);}
-	| GT {$$ = new Rop($1);}
-	| GEQ {$$ = new Rop($1);}
-	| EQ {$$ = new Rop($1);}
-	| DIF {$$ = new Rop($1);}
-	;
-
-additive_expression : additive_expression addop term {$$ = new AE1($1,$2,$3);}
-	| term {$$ = new AE2($1);}
-	;
-addop : ADD {$$ = new Aop($1);}
-	| MINUS {$$ = new Aop($1);}
-	;
-term : term mulop factor {$$ = new T1($1,$2,$3);} 
-	| factor {$$ = new T2($1);}
-	;
-mulop : TIMES {$$ = new M1($1);}
-	| DIV {$$ = new M2($1);}
-	;
-
-
-factor : LPAREN expression RPAREN {$$ = new F1($1,$2,$3);}
-	| var {$$ = new F2($1);}
-	| call {$$ = new F3($1);}
-	| NUM {$$ = new F4($1);}
-	;
-
-call : ID LPAREN args RPAREN {$$ = new C($1,$2,$3,$4);}
-	;
-args : arg_list {$$ = new AR($1);}
-	| {$$ = NULL;}
-	;
-arg_list : arg_list COMMA expression {$$ = new AL1($1);}
-	| expression {$$ = new AL1($1);}
-	;	
+%precedence TAIL
+%precedence ELSE
 
 %%
 
-int main() {
-	yyin = stdin;
-	do { 
-		yyparse();
-	} while(!feof(yyin));
-	return 0;
-}
+program             : declaration_list { program.declaration_list = *$1; } // novo escopo
+	                ;
 
-void yyerror(char const* msg)
-{
-	std::cout<<"Syntax Error: " << msg << std::endl;
+declaration_list    : declaration_list declaration { $1->push_back($2); }
+                    | declaration { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Declaration>>>(); $$->push_back($1); }
+	                ;
+
+declaration         : var_declaration { $$ = $1; }
+	                | fun_declaration { $$ = $1; }
+                    ;
+
+var_declaration     : type_specifier ID SC { $$ = std::make_shared<tree::VariableDeclaration>($1, $2); }
+	                | type_specifier ID RBRACKET NUM LBRACKET SC { $$ = std::make_shared<tree::VariableDeclaration>($1, $2, $4); }
+	                ;
+
+type_specifier      : INT { $$ = $1; }
+	                | VOID { $$ = $1; }
+	                ;
+
+fun_declaration     : type_specifier ID LPAREN params RPAREN compound_stmt { $$ = std::make_shared<tree::FunctionDeclaration>($1, $2, *$4, $6); }
+	                ;
+
+params              : param_list { $$ = $1; }
+	                | VOID { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); }
+	                ;
+
+param_list          : param_list COMMA param { $1->push_back($3); $$ = $1; }
+	                | param { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); $$->push_back($1); }
+	                ;
+
+param               : type_specifier ID { $$ = std::make_shared<tree::Param>($1, $2); }
+	                | type_specifier ID RBRACKET LBRACKET { $$ = std::make_shared<tree::Param>($1, $2, true); }
+	                ;
+
+compound_stmt       : LCBRT local_declarations statement_list RCBRT { $$ = std::make_shared<tree::CompoundStatement>(*$2, *$3); } //novo escopo
+	                ;
+
+local_declarations  : local_declarations var_declaration { $1->push_back($2); $$ = $1; }
+	                | %empty { $$ = std::make_shared<std::vector<std::shared_ptr<tree::VariableDeclaration>>>(); }
+	                ;
+statement_list      : statement_list statement { $1->push_back($2); $$ = $1; }
+	                | %empty { std::make_shared<std::vector<std::shared_ptr<tree::Statement>>>(); }
+	                ;
+
+statement           : expression_stmt { $$ = $1; }
+	                | compound_stmt { $$ = $1; }
+	                | selection_stmt { $$ = $1; }
+	                | iteration_stmt { $$ = $1; }
+                    | return_stmt { $$ = $1; }
+                    ;
+expression_stmt     : expression SC { $$ = $1;}
+	                | SC { $$ = std::make_shared<tree::Expression>(); } //empty
+	                ;
+
+selection_stmt      : IF LPAREN expression RPAREN statement %prec TAIL { $$ = std::make_shared<tree::Selection>($3, $5); }
+                    | IF LPAREN expression RPAREN statement ELSE statement { std::make_shared<tree::Selection>($3, $5, $7); }
+                    ;
+
+iteration_stmt      : WHILE LPAREN expression RPAREN statement { $$ = std::make_shared<tree::Iteration>($3, $5); }
+	                ;
+
+return_stmt         : RETURN SC { std::make_shared<tree::Return>(); }
+	                | RETURN expression SC { std::make_shared<tree::Return>($2); }
+	                ;
+
+expression          : var EQ expression { $$ = std::make_shared<tree::Assign>($1, $3); }
+	                | simple_expression { $$ = $1; }
+	                ;
+
+var                 : ID { $$ = std::make_shared<tree::Variable>($1); }
+	                | ID LBRACKET expression RBRACKET { $$ = std::make_shared<tree::Variable>($1, $3); }
+	                ;
+
+simple_expression   : additive_expression relop additive_expression { $$ = std::make_shared<tree::BinaryOperation>($1, $2, $3); }
+                    | additive_expression { $$ = $1; }
+                    ;
+relop               : LEQ { $$ = std::string("<="); }
+	                | LT { $$ = std::string("<"); }
+	                | GT { $$ = std::string(">"); }
+	                | GEQ { $$ = std::string(">="); }
+	                | EQTO { $$ = std::string("=="); }
+	                | DIF { $$ = std::string("!="); }
+	                ;
+
+additive_expression : additive_expression addop term { $$ = std::make_shared<tree::BinaryOperation>($1, $2, $3); }
+	                | term { $$ = $1; }
+	                ;
+
+addop               : PLUS { $$ = std::string("+"); }
+	                | MINUS { $$ = std::string("-"); }
+	                ;
+
+term                : term mulop factor { $$ = std::make_shared<tree::BinaryOperation>($1, $2, $3); }
+	                | factor { $$ = $1; }
+	                ;
+mulop               : TIMES { $$ = std::string("*"); }
+	                | DIV { $$ = std::string("/"); }
+	                ;
+
+factor              : LPAREN expression RPAREN { $$ = $2; }
+	                | var { $$ = $1; }
+	                | call { $$ = $1; }
+	                | NUM { $$ = std::make_shared<tree::Number>($1); }
+	                ;
+
+call                : ID LPAREN args RPAREN { $$ = std::make_shared<tree::FunctionCall>($1, *$3); }
+	                ;
+
+args                : arg_list { $$ = $1; }
+	                | %empty { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Expression>>>(); }
+	                ;
+
+arg_list            : arg_list COMMA expression { $1->push_back($3); $$ = $1; }
+	                | expression { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Expression>>>(); $$->push_back($1); }
+	                ;
+
+%%
+
+void yyerror(char const* msg) {
+	std::cout << "Syntax Error: " << msg << " at line " << std::to_string(yylineno) << std::endl;
+	exit(1);
 }

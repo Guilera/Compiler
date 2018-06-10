@@ -2,11 +2,12 @@
 
 %{ 
     #include <iostream>      // for I/O
-    #include <string.h>        // for string handling 
-    #include <ctype.h>         // for character predicates
+    #include <string.h>      // for string handling
+    #include <ctype.h>       // for character predicates
     #include <fstream>
-    #include "parser.tab.h"
-    
+    #include "parser.hpp"
+    #include "tree.hpp"
+
 
 %}
    
@@ -18,14 +19,10 @@ wa      ({digit})+({letter})({digit}|{letter})*
 key 	"else"|"if"|"int"|"return"|"void"|"while"
 sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"|"}"
 
+%option yylineno
 %%
 
-" " {}
-\t  {} 
-\n  {}    
-
-{wa} {return 0;}
-
+[ \t\n]+ {}
 
 "/*"    {
     int c;
@@ -51,7 +48,7 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
     }
 }
 
-"+"     return ADD;
+"+"     return PLUS;
 "-"     return MINUS;
 "*"     return TIMES;
 "/"     return DIV;
@@ -72,21 +69,17 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
 "}"     return RCBRT;
 "else"  return ELSE;
 "if"    return IF;
-"int"   return INT;
 "return"return RETURN;
-"void"  return VOID;
 "while" return WHILE;
-  
-{num} {                              // INTEGERS
-    return NUM;
-}
+"void"  return yylval.token = VOID;
+"int"   return yylval.token = INT;
 
-{id} {                 // VARIABLES
-    return ID;
-}
+{num} { yylval.number = std::stoi(yytext); return NUM; }
+
+{id} { yylval.id = std::string(yytext); return ID; }
    
 
-. {return 0;}
+. { std::cout << std::string(yytext) << "\" in line " << std::to_string(yylineno) << "is not a recognizable token \"" << std::endl; exit(1); }
 
   
 %%

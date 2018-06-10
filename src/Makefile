@@ -1,13 +1,13 @@
 all: parser
 
-parser.tab.c parser.tab.h:	parser.y 
-	bison -d parser.y
+parser.cpp parser.hpp:  parser.y
+	bison -d parser.y -o parser.cpp
 
-lex.yy.c: lexico.l parser.tab.h
-	flex lexico.l
+lex.cpp: lexico.l parser.hpp
+	flex -o lex.cpp lexico.l
 
-parser: lex.yy.c parser.tab.c parser.tab.h
-	g++ -o parser parser.tab.c lex.yy.c
+parser: lex.cpp parser.cpp parser.hpp main.cpp tree.cpp
+	g++ -std=c++11 -o parser *.hpp *.cpp
 
 clean:
-	rm parser parser.tab.c lex.yy.c parser.tab.h
+	rm parser parser.cpp lex.cpp parser.hpp *.hcp
