@@ -25,6 +25,7 @@ int main(const int argc, const char **argv) {
 	  std::cout << "Impossible to open file" << argv[2] << std::endl;
 	}
   } else {
+    std::cout << std::endl;
     yyparse();
 	program.print(std::cout);
   }

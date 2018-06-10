@@ -1,6 +1,4 @@
-%option noyywrap
-
-%{ 
+%{
     #include <iostream>      // for I/O
     #include <string.h>      // for string handling
     #include <ctype.h>       // for character predicates
@@ -10,16 +8,18 @@
 
 
 %}
-   
+
 digit   [0-9]
+key 	"else"|"if"|"int"|"return"|"void"|"while"
 letter  [a-z|A-Z]
 num     ({digit})*
 id      {letter}({letter}|{digit})*
 wa      ({digit})+({letter})({digit}|{letter})*
-key 	"else"|"if"|"int"|"return"|"void"|"while"
 sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"|"}"
 
+%option noyywrap
 %option yylineno
+
 %%
 
 [ \t\n]+ {}
@@ -48,31 +48,31 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
     }
 }
 
-"+"     return PLUS;
-"-"     return MINUS;
-"*"     return TIMES;
-"/"     return DIV;
-"<"     return LT;
-"<="    return LEQ;
-">"     return GT;
-">="    return GEQ;
-"=="    return EQ;
-"!="    return DIF;
-"="     return EQTO;
-";"     return SC;
-","     return COMMA;
-"("     return LPAREN;
-")"     return RPAREN;
-"["     return RBRACKET;
-"]"     return LBRACKET;
-"{"     return LCBRT;
-"}"     return RCBRT;
-"else"  return ELSE;
-"if"    return IF;
-"return"return RETURN;
-"while" return WHILE;
-"void"  return yylval.token = VOID;
-"int"   return yylval.token = INT;
+"+"         return PLUS;
+"-"         return MINUS;
+"*"         return TIMES;
+"/"         return DIV;
+"<"         return LT;
+"<="        return LEQ;
+">"         return GT;
+">="        return GEQ;
+"=="        return EQ;
+"!="        return DIF;
+"="         return ASS;
+";"         return SC;
+","         return COMMA;
+"("         return LPAREN;
+")"         return RPAREN;
+"["         return LBRACKET;
+"]"         return RBRACKET;
+"{"         return LCBRT;
+"}"         return RCBRT;
+"else"      return ELSE;
+"if"        return IF;
+"return"    return RETURN;
+"while"     return WHILE;
+"void"      return yylval.token = VOID;
+"int"       return yylval.token = INT;
 
 {num} { yylval.number = std::stoi(yytext); return NUM; }
 
