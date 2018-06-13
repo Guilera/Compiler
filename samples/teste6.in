@@ -1,0 +1,18 @@
+int f;
+
+int f(int x) {
+    return 2;
+}
+
+int g;
+
+void main(void)
+{
+    int a[10];
+
+    while(g < 10)
+    {
+        ;
+    }
+}
+

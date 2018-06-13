@@ -6,7 +6,7 @@ parser.cpp parser.hpp:  parser.y
 lex.cpp: lexico.l parser.hpp
 	flex -o lex.cpp lexico.l
 
-parser: lex.cpp parser.cpp parser.hpp main.cpp tree.cpp
+parser: lex.cpp parser.cpp parser.hpp main.cpp tree.cpp semantic.cpp
 	g++ -std=c++11 -o parser *.hpp *.cpp
 
 clean:

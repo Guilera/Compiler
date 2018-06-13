@@ -1,0 +1,21 @@
+int g;
+
+void f(int x) {
+    return;
+}
+
+
+void main(void)
+{
+    int a[10];
+
+    while(g < 10)
+    {
+        ;
+    }
+}
+
+void a(int x) {
+    return;
+}
+

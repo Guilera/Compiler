@@ -1,0 +1,19 @@
+int f(int x) {
+    return 2;
+}
+
+int bar(int x, int y) {
+
+	return f(x);
+}
+
+void main(void)
+{
+    int a[10];
+	int g;
+    while(g < 10)
+    {
+        ;
+    }
+}
+
