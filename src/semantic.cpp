@@ -202,10 +202,12 @@ void Variable::semantic() {
     exit(0);
   }  
 
-  //if(!expression && aux == "array") {
-  //  std::cout << "array without index " << std::endl;
-    
-  //}
+  if(!expression && aux == "array") {
+  	// if you comment this if statement array indexation will only work with number not expressions 
+    std::cout << "array without index " << std::endl;
+    exit(0);
+  }
+
   if(funcID != -1) {
     if(func[funcID][ind++] != aux) {
       std::cout << "imcompatible types in function" << std::endl;
