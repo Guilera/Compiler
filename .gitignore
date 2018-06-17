@@ -6,3 +6,4 @@ compiler
 *.d
 parser
 a.out
+parser
