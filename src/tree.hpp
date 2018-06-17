@@ -30,10 +30,7 @@ class Declaration : public Node {
   Declaration(int, std::string &);
 };
 
-class Statement : public Node {
- public:
-  void print(std::ostream &);
-};
+class Statement : public Node {};
 
 class Expression : public Statement {
  public:

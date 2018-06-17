@@ -9,8 +9,6 @@ using namespace tree;
 
 void Node::print(std::ostream &) {}
 
-void Statement::print(std::ostream &) {}
-
 void Expression::print(std::ostream &os) {
   os << "[;]";
 }
