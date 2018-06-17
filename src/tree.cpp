@@ -53,7 +53,7 @@ void Param::print(std::ostream &os) {
 	os << "void";
   os << "] " << "[" << id << "]";
   if(is_array)
-    os << "[]";
+    os << "[\\[\\]]";
   os << "]";
 }
 
