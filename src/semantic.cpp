@@ -74,7 +74,7 @@ void VariableDeclaration::semantic() {
       tipo = "void";
 
     if(isScopeGlobal() && type == VOID) {
-      std::cout << "wrong void declaration glabally" << std::endl;
+      std::cout << "wrong void declaration globally" << std::endl;
       exit(0);
     }
     addVar(id,tipo);
