@@ -79,7 +79,7 @@
 program             : declaration_list { program.declaration_list = *$1; if(debug){ std::cout << "program decs" << std::endl;} } // novo escopo
 	                ;
 
-declaration_list    : declaration_list declaration { $1->push_back($2); if(debug){ std::cout << "push dec" << std::endl; }}
+declaration_list    : declaration_list declaration { $1->push_back($2); $$ = $1; if(debug){ std::cout << "push dec" << std::endl; }}
                     | declaration { $$ = std::make_shared<std::vector<std::shared_ptr<tree::Declaration>>>(); $$->push_back($1); if(debug){ std::cout << "reduce dec to dec_list" << std::endl; }}
 	                ;
 
@@ -131,7 +131,7 @@ expression_stmt     : expression SC { $$ = $1; if(debug){ std::cout << "reduce e
 	                ;
 
 selection_stmt      : IF LPAREN expression RPAREN statement %prec TAIL { $$ = std::make_shared<tree::Selection>($3, $5); if(debug){ std::cout << "reduce single_if to selection_stmt" << std::endl; }}
-                    | IF LPAREN expression RPAREN statement ELSE statement { std::make_shared<tree::Selection>($3, $5, $7); if(debug){ std::cout << "reduce if+else to selection_stmt" << std::endl; }}
+                    | IF LPAREN expression RPAREN statement ELSE statement { $$ = std::make_shared<tree::Selection>($3, $5, $7); if(debug){ std::cout << "reduce if+else to selection_stmt" << std::endl; }}
                     ;
 
 iteration_stmt      : WHILE LPAREN expression RPAREN statement { $$ = std::make_shared<tree::Iteration>($3, $5); if(debug){ std::cout << "reduce while to iteration_stmt" << std::endl; }}
