@@ -17,6 +17,7 @@ std::vector<std::vector<std::string> > func;
 std::list<ss> scope;
 bool isValid = true;
 bool isArg = false;
+bool isOp = false;
 bool isVoid;
 int funcID = -1, ind;
 
@@ -270,13 +271,22 @@ void FunctionCall::semantic() {
 
 void BinaryOperation::semantic() {
 	//printfunc("BinaryOperation");
+	isOp = true;
   lhs->semantic();
   rhs->semantic();
+  if(funcID != -1) {
+  	debug(func[funcID][ind]);
+    if(func[funcID][ind++] != "int") {
+      std::cout << "incompatible types in function" << std::endl;
+  	  exit(0);
+  	}  
+  }
+  isOp = false;
 } 
 
 void Number::semantic() {
 	//printfunc("Number");
-  if(funcID != -1) {
+	if(funcID != -1 && !isOp) {
     if(func[funcID][ind++] != "int") {
       std::cout << "incompatible types in function" << std::endl;
   	  exit(0);
