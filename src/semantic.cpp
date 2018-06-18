@@ -16,6 +16,7 @@ using namespace tree;
 std::vector<std::vector<std::string> > func;
 std::list<ss> scope;
 bool isValid = true;
+bool isArg = false;
 bool isVoid;
 int funcID = -1, ind;
 
@@ -159,7 +160,7 @@ void FunctionDeclaration::semantic() {
     }
     param->semantic();
   }
-  
+
   compound_stmt->semantic();  
   std::cout << "Exit Scope in Function " << id << std::endl;
   exitScope();
@@ -202,21 +203,35 @@ void Variable::semantic() {
     exit(0);
   }  
 
-  if(!expression && aux == "array") {
-  	// if you comment this if statement array indexation will only work with number not expressions 
+  //debug(id);
+  if(!expression && aux == "array" && !isArg) {
+  	//if you comment this if statement array indexation will only work with number not expressions 
     std::cout << "array without index " << std::endl;
     exit(0);
   }
 
   if(funcID != -1) {
+  	if(aux == "array" && expression)
+  		aux = "int";
+  	//debug(id);
+  	//debug(aux);
+  	//debug(func[funcID][ind]);
     if(func[funcID][ind++] != aux) {
-      std::cout << "imcompatible types in function" << std::endl;
+      std::cout << "incompatible types in function" << std::endl;
   	  exit(0);
   	}  
   }
   
+  aux = isDeclared(id);
+  int saveID = funcID;
+  if(aux == "array")  {
+  	funcID = -1;
+  }
+
   if(expression)
     expression->semantic();
+
+  funcID = saveID;
 } 
 
 
@@ -234,19 +249,21 @@ void FunctionCall::semantic() {
     exit(0);
     return;
   }
-  debug(id);
+  //debug(id);
   funcID = idOfFunction(id);
   ind = 1;
-  std::cout << "funcID = " << funcID << std::endl;
-  std::cout << "args size " << args.size() << "       " << " fsize " <<  func[funcID].size()-1 << std::endl;
+  //std::cout << "funcID = " << funcID << std::endl;
+  //std::cout << "args size " << args.size() << "       " << " fsize " <<  func[funcID].size()-1 << std::endl;
   if(args.size() != func[funcID].size()-1) {
   	std::cout << "qtd of args different from function" << std::endl;
     exit(0);
     funcID = -1;
     return;
   }
+  isArg = true;
   for(auto &a : args)
     a->semantic();
+  isArg = false;
 
   funcID = -1;
 } 
@@ -322,7 +339,7 @@ std::string isDeclared(std::string x) {
 
 int idOfFunction(std::string x) {
   for(int i = 0; i < func.size(); i++) {
-  	std::cout << func[i].front() << std::endl;
+  	//std::cout << func[i].front() << std::endl;
     if(func[i].front() == x) {
       return i;
     }

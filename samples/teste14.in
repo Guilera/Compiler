@@ -1,0 +1,11 @@
+
+
+void main(void) {
+	
+	int arr[10];
+
+	int i;
+	while(2 < 0) {
+		println(arr[i]);
+	}
+}

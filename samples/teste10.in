@@ -1,0 +1,32 @@
+int f(int z) {
+    return 2;
+}
+
+int bar(int x, int y) {
+
+	return bar(x,y);
+}
+
+int k;
+
+int z(int x) {
+	
+	while(k < 0) {
+		return 0;
+	}
+
+	return 1;
+
+}
+
+void main(void)
+{
+    int a[10];
+	int g;
+    while(g < 10)
+    {
+        ;
+    }
+}
+
+

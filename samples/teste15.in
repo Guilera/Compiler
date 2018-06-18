@@ -1,0 +1,26 @@
+
+int f(int x) {
+	return f(x);
+}
+
+int bar(int x, int y) {
+	return f(x);
+}
+
+void main(void) {
+	
+	int arr[10];
+	int v[3]; 
+	int y;
+
+	y = f(y);
+	y = f(y);
+
+	int x;
+	x = f(x);
+	int i;
+
+	while(2 < 0) {
+		println(bar(3,arr[2]));
+	}
+}
