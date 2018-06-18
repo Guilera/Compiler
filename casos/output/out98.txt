@@ -1,0 +1,13 @@
+[program
+[fun-declaration
+[void]
+[main]
+[params]
+[compound-stmt
+[+ [1] [call
+[main]
+[args ]]
+]
+]
+]
+]
