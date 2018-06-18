@@ -43,7 +43,6 @@ void Program::semantic() {
   func.push_back(std::vector<std::string>());
   func.push_back(std::vector<std::string>());
   func[0].push_back("input");
-  func[0].push_back("void");
   func[1].push_back("println");
   func[1].push_back("int");
   createScope();
