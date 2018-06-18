@@ -1,0 +1,14 @@
+int x;
+int a[10];
+
+int foo(int x) {
+	return x + 2;
+}
+
+void main(void)
+{
+	x = 2;
+	a[x] = 3;
+	x = foo(2+4);
+}
+

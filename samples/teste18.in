@@ -1,0 +1,21 @@
+int x;
+int a[10];
+
+int foo(int x) {
+	return x + 2;
+}
+
+void main(void)
+{
+
+	int y;
+	int z;
+	x = 2;
+	y = 9;
+	a[x] = 3;
+
+	while(x = foo(y) < 10 + z) {
+		y = y+1;
+	}
+}
+
