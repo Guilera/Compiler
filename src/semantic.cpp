@@ -43,6 +43,7 @@ void Program::semantic() {
   func.push_back(std::vector<std::string>());
   func.push_back(std::vector<std::string>());
   func[0].push_back("input");
+  func[0].push_back("void");
   func[1].push_back("println");
   func[1].push_back("int");
   createScope();
@@ -254,7 +255,8 @@ void FunctionCall::semantic() {
   ind = 1;
   //std::cout << "funcID = " << funcID << std::endl;
   //std::cout << "args size " << args.size() << "       " << " fsize " <<  func[funcID].size()-1 << std::endl;
-  if(args.size() != func[funcID].size()-1) {
+  int sz = (func[funcID].size()-1 == 1 && func[funcID][1] == "void" ? 0 : func[funcID].size()-1);
+  if(args.size() != sz) {
   	std::cout << "qtd of args different from function" << std::endl;
     exit(0);
     funcID = -1;
