@@ -46,7 +46,8 @@ extern int yydebug;
     #include "tree.hpp"
 
     struct NEWTYPE {
-        int token, number;
+        int token;
+        long long number;
         std::string id, op;
         std::shared_ptr<std::vector<std::shared_ptr<tree::Declaration>>> declaration_list;
         std::shared_ptr<tree::Declaration> declaration;
@@ -65,7 +66,7 @@ extern int yydebug;
 
     #define YYSTYPE NEWTYPE
 
-#line 69 "parser.hpp" /* yacc.c:1909  */
+#line 70 "parser.hpp" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE

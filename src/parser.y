@@ -22,7 +22,8 @@
     #include "tree.hpp"
 
     struct NEWTYPE {
-        int token, number;
+        int token;
+        long long number;
         std::string id, op;
         std::shared_ptr<std::vector<std::shared_ptr<tree::Declaration>>> declaration_list;
         std::shared_ptr<tree::Declaration> declaration;

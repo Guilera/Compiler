@@ -116,7 +116,8 @@ extern int yydebug;
     #include "tree.hpp"
 
     struct NEWTYPE {
-        int token, number;
+        int token;
+        long long number;
         std::string id, op;
         std::shared_ptr<std::vector<std::shared_ptr<tree::Declaration>>> declaration_list;
         std::shared_ptr<tree::Declaration> declaration;
@@ -135,7 +136,7 @@ extern int yydebug;
 
     #define YYSTYPE NEWTYPE
 
-#line 139 "parser.cpp" /* yacc.c:355  */
+#line 140 "parser.cpp" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -184,7 +185,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 188 "parser.cpp" /* yacc.c:358  */
+#line 189 "parser.cpp" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -484,13 +485,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    78,    78,    81,    82,    85,    86,    89,    90,    93,
-      94,    97,   100,   101,   104,   105,   108,   109,   112,   115,
-     116,   118,   119,   122,   123,   124,   125,   126,   128,   129,
-     132,   133,   136,   139,   140,   143,   144,   147,   148,   151,
-     152,   154,   155,   156,   157,   158,   159,   162,   163,   166,
-     167,   170,   171,   173,   174,   177,   178,   179,   180,   183,
-     186,   187,   190,   191
+       0,    79,    79,    82,    83,    86,    87,    90,    91,    94,
+      95,    98,   101,   102,   105,   106,   109,   110,   113,   116,
+     117,   119,   120,   123,   124,   125,   126,   127,   129,   130,
+     133,   134,   137,   140,   141,   144,   145,   148,   149,   152,
+     153,   155,   156,   157,   158,   159,   160,   163,   164,   167,
+     168,   171,   172,   174,   175,   178,   179,   180,   181,   184,
+     187,   188,   191,   192
 };
 #endif
 
@@ -1333,379 +1334,379 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 78 "parser.y" /* yacc.c:1646  */
+#line 79 "parser.y" /* yacc.c:1646  */
     { program.declaration_list = *(yyvsp[0].declaration_list); if(debug){ std::cout << "program decs" << std::endl;} }
-#line 1339 "parser.cpp" /* yacc.c:1646  */
+#line 1340 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 81 "parser.y" /* yacc.c:1646  */
-    { (yyvsp[-1].declaration_list)->push_back((yyvsp[0].declaration)); if(debug){ std::cout << "push dec" << std::endl; }}
-#line 1345 "parser.cpp" /* yacc.c:1646  */
+#line 82 "parser.y" /* yacc.c:1646  */
+    { (yyvsp[-1].declaration_list)->push_back((yyvsp[0].declaration)); (yyval.declaration_list) = (yyvsp[-1].declaration_list); if(debug){ std::cout << "push dec" << std::endl; }}
+#line 1346 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 82 "parser.y" /* yacc.c:1646  */
+#line 83 "parser.y" /* yacc.c:1646  */
     { (yyval.declaration_list) = std::make_shared<std::vector<std::shared_ptr<tree::Declaration>>>(); (yyval.declaration_list)->push_back((yyvsp[0].declaration)); if(debug){ std::cout << "reduce dec to dec_list" << std::endl; }}
-#line 1351 "parser.cpp" /* yacc.c:1646  */
+#line 1352 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 85 "parser.y" /* yacc.c:1646  */
+#line 86 "parser.y" /* yacc.c:1646  */
     { (yyval.declaration) = (yyvsp[0].var_declaration); if(debug){ std::cout << "reduce var_dec to declaration" << std::endl; }}
-#line 1357 "parser.cpp" /* yacc.c:1646  */
+#line 1358 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 86 "parser.y" /* yacc.c:1646  */
+#line 87 "parser.y" /* yacc.c:1646  */
     { (yyval.declaration) = (yyvsp[0].fun_declaration); if(debug){ std::cout << "reduce fun_dec to declaration" << std::endl; }}
-#line 1363 "parser.cpp" /* yacc.c:1646  */
+#line 1364 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 89 "parser.y" /* yacc.c:1646  */
+#line 90 "parser.y" /* yacc.c:1646  */
     { (yyval.var_declaration) = std::make_shared<tree::VariableDeclaration>((yyvsp[-2].token), (yyvsp[-1].id)); if(debug){ std::cout << "var_dec " << (yyvsp[-2].token) << " " << (yyvsp[-1].id) << std::endl; }}
-#line 1369 "parser.cpp" /* yacc.c:1646  */
+#line 1370 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 90 "parser.y" /* yacc.c:1646  */
+#line 91 "parser.y" /* yacc.c:1646  */
     { (yyval.var_declaration) = std::make_shared<tree::VariableDeclaration>((yyvsp[-5].token), (yyvsp[-4].id), (yyvsp[-2].number)); if(debug){ std::cout << "var_dec array" << std::endl; }}
-#line 1375 "parser.cpp" /* yacc.c:1646  */
+#line 1376 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 93 "parser.y" /* yacc.c:1646  */
+#line 94 "parser.y" /* yacc.c:1646  */
     { (yyval.token) = (yyvsp[0].token); if(debug){ std::cout << "type int" << std::endl; }}
-#line 1381 "parser.cpp" /* yacc.c:1646  */
+#line 1382 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 94 "parser.y" /* yacc.c:1646  */
+#line 95 "parser.y" /* yacc.c:1646  */
     { (yyval.token) = (yyvsp[0].token); if(debug){ std::cout << "type void" << std::endl; }}
-#line 1387 "parser.cpp" /* yacc.c:1646  */
+#line 1388 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 97 "parser.y" /* yacc.c:1646  */
+#line 98 "parser.y" /* yacc.c:1646  */
     { (yyval.fun_declaration) = std::make_shared<tree::FunctionDeclaration>((yyvsp[-5].token), (yyvsp[-4].id), *(yyvsp[-2].params), (yyvsp[0].compound_stmt)); if(debug){ std::cout << "fun_dec " << (yyvsp[-4].id) << std::endl; }}
-#line 1393 "parser.cpp" /* yacc.c:1646  */
+#line 1394 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 100 "parser.y" /* yacc.c:1646  */
+#line 101 "parser.y" /* yacc.c:1646  */
     { (yyval.params) = (yyvsp[0].params); if(debug){ std::cout << "reduce param_list to params" << std::endl; }}
-#line 1399 "parser.cpp" /* yacc.c:1646  */
+#line 1400 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 101 "parser.y" /* yacc.c:1646  */
+#line 102 "parser.y" /* yacc.c:1646  */
     { (yyval.params) = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); if(debug){ std::cout << "create param_list(void)" << std::endl; }}
-#line 1405 "parser.cpp" /* yacc.c:1646  */
+#line 1406 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 104 "parser.y" /* yacc.c:1646  */
+#line 105 "parser.y" /* yacc.c:1646  */
     { (yyvsp[-2].params)->push_back((yyvsp[0].param)); (yyval.params) = (yyvsp[-2].params); if(debug){ std::cout << "push param " << (yyvsp[0].param)->id << std::endl; }}
-#line 1411 "parser.cpp" /* yacc.c:1646  */
+#line 1412 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 105 "parser.y" /* yacc.c:1646  */
+#line 106 "parser.y" /* yacc.c:1646  */
     { (yyval.params) = std::make_shared<std::vector<std::shared_ptr<tree::Param>>>(); (yyval.params)->push_back((yyvsp[0].param)); if(debug){ std::cout << "reduce param " << (yyvsp[0].param)->id << " to param_list" << std::endl; }}
-#line 1417 "parser.cpp" /* yacc.c:1646  */
+#line 1418 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 108 "parser.y" /* yacc.c:1646  */
+#line 109 "parser.y" /* yacc.c:1646  */
     { (yyval.param) = std::make_shared<tree::Param>((yyvsp[-1].token), (yyvsp[0].id)); if(debug){ std::cout << "param " << (yyvsp[-1].token) << " " << (yyvsp[0].id) << std::endl; }}
-#line 1423 "parser.cpp" /* yacc.c:1646  */
+#line 1424 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 109 "parser.y" /* yacc.c:1646  */
+#line 110 "parser.y" /* yacc.c:1646  */
     { (yyval.param) = std::make_shared<tree::Param>((yyvsp[-3].token), (yyvsp[-2].id), true); if(debug){ std::cout << "array param " << (yyvsp[-3].token) << " " << (yyvsp[-2].id) << std::endl; }}
-#line 1429 "parser.cpp" /* yacc.c:1646  */
+#line 1430 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 112 "parser.y" /* yacc.c:1646  */
+#line 113 "parser.y" /* yacc.c:1646  */
     { (yyval.compound_stmt) = std::make_shared<tree::CompoundStatement>(*(yyvsp[-2].local_declarations), *(yyvsp[-1].statement_list)); if(debug){ std::cout << "reduce local+stmt to compound" << std::endl; }}
-#line 1435 "parser.cpp" /* yacc.c:1646  */
+#line 1436 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 115 "parser.y" /* yacc.c:1646  */
+#line 116 "parser.y" /* yacc.c:1646  */
     { (yyvsp[-1].local_declarations)->push_back((yyvsp[0].var_declaration)); (yyval.local_declarations) = (yyvsp[-1].local_declarations); if(debug){ std::cout << "push var_declaration to local_declarations" << std::endl; }}
-#line 1441 "parser.cpp" /* yacc.c:1646  */
+#line 1442 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 116 "parser.y" /* yacc.c:1646  */
+#line 117 "parser.y" /* yacc.c:1646  */
     { (yyval.local_declarations) = std::make_shared<std::vector<std::shared_ptr<tree::VariableDeclaration>>>(); if(debug){ std::cout << "reduce empty to local_declarations" << std::endl; }}
-#line 1447 "parser.cpp" /* yacc.c:1646  */
+#line 1448 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 118 "parser.y" /* yacc.c:1646  */
+#line 119 "parser.y" /* yacc.c:1646  */
     { (yyvsp[-1].statement_list)->push_back((yyvsp[0].statement)); (yyval.statement_list) = (yyvsp[-1].statement_list); if(debug){ std::cout << "push statement to statement_list" << std::endl; }}
-#line 1453 "parser.cpp" /* yacc.c:1646  */
+#line 1454 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 119 "parser.y" /* yacc.c:1646  */
+#line 120 "parser.y" /* yacc.c:1646  */
     { (yyval.statement_list) = std::make_shared<std::vector<std::shared_ptr<tree::Statement>>>(); if(debug){ std::cout << "reduce empty to statement_list" << std::endl; }}
-#line 1459 "parser.cpp" /* yacc.c:1646  */
+#line 1460 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 122 "parser.y" /* yacc.c:1646  */
+#line 123 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = (yyvsp[0].statement); if(debug){ std::cout << "reduce expression_stmt to statement" << std::endl; }}
-#line 1465 "parser.cpp" /* yacc.c:1646  */
+#line 1466 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 123 "parser.y" /* yacc.c:1646  */
+#line 124 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = (yyvsp[0].compound_stmt); if(debug){ std::cout << "reduce compound_stmt to statement" << std::endl; }}
-#line 1471 "parser.cpp" /* yacc.c:1646  */
+#line 1472 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 124 "parser.y" /* yacc.c:1646  */
+#line 125 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = (yyvsp[0].statement); if(debug){ std::cout << "reduce iteration_stmt to statement" << std::endl; }}
-#line 1477 "parser.cpp" /* yacc.c:1646  */
+#line 1478 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 125 "parser.y" /* yacc.c:1646  */
+#line 126 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = (yyvsp[0].statement); if(debug){ std::cout << "reduce selection_stmt to statement" << std::endl; }}
-#line 1483 "parser.cpp" /* yacc.c:1646  */
+#line 1484 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 126 "parser.y" /* yacc.c:1646  */
+#line 127 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = (yyvsp[0].statement); if(debug){ std::cout << "reduce return_stmt to statement" << std::endl; }}
-#line 1489 "parser.cpp" /* yacc.c:1646  */
+#line 1490 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 128 "parser.y" /* yacc.c:1646  */
+#line 129 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = (yyvsp[-1].expression); if(debug){ std::cout << "reduce expression to expression_stmt" << std::endl; }}
-#line 1495 "parser.cpp" /* yacc.c:1646  */
+#line 1496 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 129 "parser.y" /* yacc.c:1646  */
+#line 130 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = std::make_shared<tree::Expression>(); if(debug){ std::cout << "reduce empty expression to expression_stmt" << std::endl; }}
-#line 1501 "parser.cpp" /* yacc.c:1646  */
+#line 1502 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 132 "parser.y" /* yacc.c:1646  */
+#line 133 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = std::make_shared<tree::Selection>((yyvsp[-2].expression), (yyvsp[0].statement)); if(debug){ std::cout << "reduce single_if to selection_stmt" << std::endl; }}
-#line 1507 "parser.cpp" /* yacc.c:1646  */
+#line 1508 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 133 "parser.y" /* yacc.c:1646  */
-    { std::make_shared<tree::Selection>((yyvsp[-4].expression), (yyvsp[-2].statement), (yyvsp[0].statement)); if(debug){ std::cout << "reduce if+else to selection_stmt" << std::endl; }}
-#line 1513 "parser.cpp" /* yacc.c:1646  */
+#line 134 "parser.y" /* yacc.c:1646  */
+    { (yyval.statement) = std::make_shared<tree::Selection>((yyvsp[-4].expression), (yyvsp[-2].statement), (yyvsp[0].statement)); if(debug){ std::cout << "reduce if+else to selection_stmt" << std::endl; }}
+#line 1514 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 136 "parser.y" /* yacc.c:1646  */
+#line 137 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = std::make_shared<tree::Iteration>((yyvsp[-2].expression), (yyvsp[0].statement)); if(debug){ std::cout << "reduce while to iteration_stmt" << std::endl; }}
-#line 1519 "parser.cpp" /* yacc.c:1646  */
+#line 1520 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 139 "parser.y" /* yacc.c:1646  */
+#line 140 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = std::make_shared<tree::Return>(); if(debug){ std::cout << "reduce empty return to return_stmt" << std::endl; }}
-#line 1525 "parser.cpp" /* yacc.c:1646  */
+#line 1526 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 140 "parser.y" /* yacc.c:1646  */
+#line 141 "parser.y" /* yacc.c:1646  */
     { (yyval.statement) = std::make_shared<tree::Return>((yyvsp[-1].expression)); if(debug){ std::cout << "reduce return+expression to return_stmt" << std::endl; }}
-#line 1531 "parser.cpp" /* yacc.c:1646  */
+#line 1532 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 143 "parser.y" /* yacc.c:1646  */
+#line 144 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = std::make_shared<tree::Assign>((yyvsp[-2].variable), (yyvsp[0].expression)); if(debug){ std::cout << "reduce assign to expr" << std::endl; }}
-#line 1537 "parser.cpp" /* yacc.c:1646  */
+#line 1538 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 144 "parser.y" /* yacc.c:1646  */
+#line 145 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[0].expression); if(debug){ std::cout << "reduce simple_expr to expr" << std::endl; }}
-#line 1543 "parser.cpp" /* yacc.c:1646  */
+#line 1544 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 147 "parser.y" /* yacc.c:1646  */
+#line 148 "parser.y" /* yacc.c:1646  */
     { (yyval.variable) = std::make_shared<tree::Variable>((yyvsp[0].id)); if(debug){ std::cout << "simple var " << (yyvsp[0].id) << std::endl; }}
-#line 1549 "parser.cpp" /* yacc.c:1646  */
+#line 1550 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 148 "parser.y" /* yacc.c:1646  */
+#line 149 "parser.y" /* yacc.c:1646  */
     { (yyval.variable) = std::make_shared<tree::Variable>((yyvsp[-3].id), (yyvsp[-1].expression)); if(debug){ std::cout << "array var " << (yyvsp[-3].id); (yyvsp[-1].expression)->print(std::cout); std::cout << std::endl; }}
-#line 1555 "parser.cpp" /* yacc.c:1646  */
+#line 1556 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 151 "parser.y" /* yacc.c:1646  */
+#line 152 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = std::make_shared<tree::BinaryOperation>((yyvsp[-2].expression), (yyvsp[-1].op), (yyvsp[0].expression)); }
-#line 1561 "parser.cpp" /* yacc.c:1646  */
+#line 1562 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 152 "parser.y" /* yacc.c:1646  */
+#line 153 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[0].expression); if(debug){ std::cout << "reduce add_expr to simple_expr" << std::endl; }}
-#line 1567 "parser.cpp" /* yacc.c:1646  */
+#line 1568 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 154 "parser.y" /* yacc.c:1646  */
+#line 155 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("<="); }
-#line 1573 "parser.cpp" /* yacc.c:1646  */
+#line 1574 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 155 "parser.y" /* yacc.c:1646  */
+#line 156 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("<"); }
-#line 1579 "parser.cpp" /* yacc.c:1646  */
+#line 1580 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 156 "parser.y" /* yacc.c:1646  */
+#line 157 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string(">"); }
-#line 1585 "parser.cpp" /* yacc.c:1646  */
+#line 1586 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 157 "parser.y" /* yacc.c:1646  */
+#line 158 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string(">="); }
-#line 1591 "parser.cpp" /* yacc.c:1646  */
+#line 1592 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 158 "parser.y" /* yacc.c:1646  */
+#line 159 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("=="); }
-#line 1597 "parser.cpp" /* yacc.c:1646  */
+#line 1598 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 159 "parser.y" /* yacc.c:1646  */
+#line 160 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("!="); }
-#line 1603 "parser.cpp" /* yacc.c:1646  */
+#line 1604 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 162 "parser.y" /* yacc.c:1646  */
+#line 163 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = std::make_shared<tree::BinaryOperation>((yyvsp[-2].expression), (yyvsp[-1].op), (yyvsp[0].expression)); }
-#line 1609 "parser.cpp" /* yacc.c:1646  */
+#line 1610 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 163 "parser.y" /* yacc.c:1646  */
+#line 164 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[0].expression); if(debug){ std::cout << "reduce term to add_expr" << std::endl; }}
-#line 1615 "parser.cpp" /* yacc.c:1646  */
+#line 1616 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 166 "parser.y" /* yacc.c:1646  */
+#line 167 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("+"); }
-#line 1621 "parser.cpp" /* yacc.c:1646  */
+#line 1622 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 167 "parser.y" /* yacc.c:1646  */
+#line 168 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("-"); }
-#line 1627 "parser.cpp" /* yacc.c:1646  */
+#line 1628 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 170 "parser.y" /* yacc.c:1646  */
+#line 171 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = std::make_shared<tree::BinaryOperation>((yyvsp[-2].expression), (yyvsp[-1].op), (yyvsp[0].expression)); }
-#line 1633 "parser.cpp" /* yacc.c:1646  */
+#line 1634 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 171 "parser.y" /* yacc.c:1646  */
+#line 172 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[0].expression); if(debug){ std::cout << "reduce factor to term" << std::endl; }}
-#line 1639 "parser.cpp" /* yacc.c:1646  */
+#line 1640 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 173 "parser.y" /* yacc.c:1646  */
+#line 174 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("*"); }
-#line 1645 "parser.cpp" /* yacc.c:1646  */
+#line 1646 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 174 "parser.y" /* yacc.c:1646  */
+#line 175 "parser.y" /* yacc.c:1646  */
     { (yyval.op) = std::string("/"); }
-#line 1651 "parser.cpp" /* yacc.c:1646  */
+#line 1652 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 177 "parser.y" /* yacc.c:1646  */
+#line 178 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[-1].expression); }
-#line 1657 "parser.cpp" /* yacc.c:1646  */
+#line 1658 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 178 "parser.y" /* yacc.c:1646  */
+#line 179 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[0].variable); if(debug){ std::cout << "reduce var " << (yyvsp[0].variable)->id << " to factor" << std::endl; }}
-#line 1663 "parser.cpp" /* yacc.c:1646  */
+#line 1664 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 179 "parser.y" /* yacc.c:1646  */
+#line 180 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[0].expression); if(debug){ std::cout << "reduce call to factor" << std::endl; }}
-#line 1669 "parser.cpp" /* yacc.c:1646  */
+#line 1670 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 180 "parser.y" /* yacc.c:1646  */
+#line 181 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = std::make_shared<tree::Number>((yyvsp[0].number)); if(debug){ std::cout << "reduce num " << (yyvsp[0].number) << " to factor" << std::endl; }}
-#line 1675 "parser.cpp" /* yacc.c:1646  */
+#line 1676 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 183 "parser.y" /* yacc.c:1646  */
+#line 184 "parser.y" /* yacc.c:1646  */
     { (yyval.expression) = std::make_shared<tree::FunctionCall>((yyvsp[-3].id), *(yyvsp[-1].expressions)); if(debug){ std::cout << "function call " << (yyvsp[-3].id) << std::endl; }}
-#line 1681 "parser.cpp" /* yacc.c:1646  */
+#line 1682 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 186 "parser.y" /* yacc.c:1646  */
+#line 187 "parser.y" /* yacc.c:1646  */
     { (yyval.expressions) = (yyvsp[0].expressions); if(debug){ std::cout << "reduce arg_list to args" << std::endl; }}
-#line 1687 "parser.cpp" /* yacc.c:1646  */
+#line 1688 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 187 "parser.y" /* yacc.c:1646  */
+#line 188 "parser.y" /* yacc.c:1646  */
     { (yyval.expressions) = std::make_shared<std::vector<std::shared_ptr<tree::Expression>>>(); if(debug){ std::cout << "reduce empty to args" << std::endl; }}
-#line 1693 "parser.cpp" /* yacc.c:1646  */
+#line 1694 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 190 "parser.y" /* yacc.c:1646  */
+#line 191 "parser.y" /* yacc.c:1646  */
     { (yyvsp[-2].expressions)->push_back((yyvsp[0].expression)); (yyval.expressions) = (yyvsp[-2].expressions); if(debug){ std::cout << "push expression to arg_list" << std::endl; }}
-#line 1699 "parser.cpp" /* yacc.c:1646  */
+#line 1700 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 191 "parser.y" /* yacc.c:1646  */
+#line 192 "parser.y" /* yacc.c:1646  */
     { (yyval.expressions) = std::make_shared<std::vector<std::shared_ptr<tree::Expression>>>(); (yyval.expressions)->push_back((yyvsp[0].expression)); if(debug){ std::cout << "reduce expression to arg_list" << std::endl; }}
-#line 1705 "parser.cpp" /* yacc.c:1646  */
+#line 1706 "parser.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 1709 "parser.cpp" /* yacc.c:1646  */
+#line 1710 "parser.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1933,7 +1934,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 194 "parser.y" /* yacc.c:1906  */
+#line 195 "parser.y" /* yacc.c:1906  */
 
 
 void yyerror(char const* msg) {

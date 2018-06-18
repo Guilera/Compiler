@@ -74,7 +74,7 @@ sym 	"+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"
 "void"      return yylval.token = VOID;
 "int"       return yylval.token = INT;
 
-{num} { yylval.number = std::stoi(yytext); return NUM; }
+{num} { yylval.number = std::stoll(yytext); return NUM; }
 
 {id} { yylval.id = std::string(yytext); return ID; }
    
