@@ -1,8 +1,6 @@
 #!/bin/bash
-i=1
-for file in casos/*.c; do
-    echo "test $i"
-    ./$1 $file casos/output/out$i.txt
+for i in {01..248}; do
+    echo "test $i.c to out$i"
+    ./$1 casos/$i.c casos/output/$i.txt
     echo
-    i=$((i + 1))
 done

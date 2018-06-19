@@ -1,7 +1,5 @@
 #!/bin/bash
-i=1
-for file in casos/*.c; do
-	echo "rename $file to $i"
-    mv $file casos/$(printf "%02i%s.c" "$i")
-    i=$((i + 1))
+for i in {01..99} do;
+	echo "rename $file to $(printf "%02i%s.c" "$file")"
+    mv casos/$i.c casos/$(printf "%03i.c" "$i")
 done
