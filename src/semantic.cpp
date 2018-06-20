@@ -8,8 +8,18 @@
 #include <utility>
 
 using namespace tree;
-#define ss std::pair<std::string,std::string>
 #define debug(x) std::cout << #x << " = " << (x) << std::endl;
+
+//-----------------------------------------------------------------------------------
+
+struct ss {
+  std::string first, second;
+  bool isArgument;
+
+  ss () {}
+
+  ss(std::string first, std::string second, bool isArgument) : first(first), second(second), isArgument(isArgument) {}
+};
 
 //-----------------------------------------------------------------------------------
 
@@ -18,14 +28,14 @@ std::list<ss> scope;
 bool isValid = true;
 bool isArg = false;
 bool isOp = false;
+bool next = false;
 bool isVoid;
 bool isInt = true;
-bool theresReturn = false;
 int funcID = -1, ind;
 
 //-----------------------------------------------------------------------------------
 
-void createScope();
+void createScope(bool isArgument);
 void exitScope();
 bool isInThisScope(std::string x);
 bool isScopeGlobal();
@@ -51,7 +61,7 @@ void Program::semantic() {
   func[1].push_back("void");
   func[1].push_back("println");
   func[1].push_back("int");
-  createScope();
+  createScope(false);
 
   std::cout << "Scope Created in Program" << std::endl;
   for(auto dec: declaration_list) {
@@ -67,10 +77,7 @@ void Program::semantic() {
 void VariableDeclaration::semantic() {
 
 	//printfunc("VariableDeclaration");
-	if(idOfFunction(id) != -1) {
-		std::cout << "id " << id << " was already decleared as a function" << std::endl;
-		exit(0);
-	}
+	
   if(!isInThisScope(id)) {
     std::string tipo;
     if(type == INT)
@@ -87,7 +94,7 @@ void VariableDeclaration::semantic() {
     addVar(id,tipo);
     std::cout << id << " added" << " type " << tipo << std::endl;
   } else {
-    std::cout << "Two variables with the same id in the same scope" << id << std::endl;
+    std::cout << "Two variables with the same id in the same scope: " << id << std::endl;
     exit(0);
   }
 }
@@ -113,7 +120,8 @@ void Param::semantic() {
 void CompoundStatement::semantic() {
 
 	//printfunc("CompoundStatement");
-	createScope();
+	createScope(next);
+  next = false;
 	std::cout << "Scope Created in CompoundStatement" << std::endl;
 
   for(auto local_dec : local_declarations) {
@@ -141,7 +149,8 @@ void FunctionDeclaration::semantic() {
   	std::cout << "id " << id << " was already decleared as a var" << std::endl;
   	exit(0);
   }
-  createScope();
+  createScope(false);
+  next = true;
   std::cout << "Scope Created in Function " << id << std::endl;
 
   func.push_back(std::vector<std::string>());
@@ -174,19 +183,16 @@ void FunctionDeclaration::semantic() {
     param->semantic();
   }
 
-  theresReturn = false;
+  
   compound_stmt->semantic();  
-  if(!theresReturn && func.back().front() == "int") {
-  	std::cout << "there isnt a return statement in this function" << std::endl;
-  	exit(0);
-  }
+  
   std::cout << "Exit Scope in Function " << id << std::endl;
   exitScope();
 }
 
 void Selection::semantic() {
 	//printfunc("Selection");
-	createScope();
+	createScope(false);
 	std::cout << "Scope Created in Selection" << std::endl;
 
   isInt = true;
@@ -204,7 +210,7 @@ void Selection::semantic() {
 
 void Iteration::semantic() {
 	//printfunc("Iteration");
-	createScope();
+	createScope(false);
 	std::cout << "Scope Created in if statement" << std::endl;
   isInt = true;
   expression->semantic();
@@ -219,7 +225,6 @@ void Iteration::semantic() {
 void Return::semantic() {
 	//printfunc("Return");
   //std::cout << isVoid << ' ' << (expression ? 1: 0) << std::endl;
-  theresReturn = true;
   if(isVoid && expression) {
     std::cout << "error found in function return " << std::endl;
     exit(0);
@@ -245,6 +250,11 @@ void Variable::semantic() {
     std::cout << "variable " << id << " wasnt declared" << std::endl;
     exit(0);
   }  
+
+  if(expression && aux == "int") {
+    std::cout << "int declared as array" << std::endl;
+    exit(0);
+  }
 
   //debug(id);
   if(!expression && aux == "array" && !isArg) {
@@ -376,8 +386,8 @@ void Number::semantic() {
 // ---------------------------------------------------------------------------------------
 
 
-void createScope() {
-  scope.push_back(ss("$","$"));
+void createScope(bool isArgument) {
+  scope.push_back(ss("$","$",isArgument));
 }
 
 void exitScope() {
@@ -397,7 +407,8 @@ void exitScope() {
 
 bool isInThisScope(std::string x) {
   auto it = scope.rbegin();
-  while(it->first != "$") {
+
+  while(it->first != "$" || it->isArgument == true) {
     if(it->first == x)
       return true;
     it++;
@@ -415,7 +426,7 @@ bool isScopeGlobal() {
 }
 
 void addVar(std::string x, std::string type) {
-  scope.push_back(ss(x,type));
+  scope.push_back(ss(x,type, false));
 }
 
 std::string isDeclared(std::string x) {
