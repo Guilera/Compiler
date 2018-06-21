@@ -23,7 +23,7 @@
 
     struct NEWTYPE {
         int token;
-        long long number;
+        int number;
         std::string id, op;
         std::shared_ptr<std::vector<std::shared_ptr<tree::Declaration>>> declaration_list;
         std::shared_ptr<tree::Declaration> declaration;

@@ -988,7 +988,7 @@ return yylval.token = INT;
 case 28:
 YY_RULE_SETUP
 #line 77 "lexico.l"
-{ yylval.number = std::stoll(yytext); return NUM; }
+{ yylval.number = std::stoi(yytext); return NUM; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP

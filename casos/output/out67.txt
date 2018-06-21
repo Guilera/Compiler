@@ -1,9 +1,0 @@
-[program
-[fun-declaration
-[void]
-[main]
-[params]
-[compound-stmt
-[2147483647]]
-]
-]

@@ -175,7 +175,8 @@ void BinaryOperation::print(std::ostream &os) {
   rhs->print(os);
   os << "]" << std::endl;
 }
-Number::Number(long long number) : number(number) {}
+Number::Number(int number) : number(number) {}
+
 void Number::print(std::ostream &os) {
   os << "[" << number << "]";
 }

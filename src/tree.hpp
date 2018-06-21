@@ -165,9 +165,9 @@ class BinaryOperation : public Expression {
 
 class Number : public Expression {
  public:
-  long long number;
+  int number;
 
-  Number(long long);
+  Number(int);
   void semantic() override;
   void print(std::ostream &) override;
 };
