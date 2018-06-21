@@ -77,6 +77,10 @@ void Program::semantic() {
 void VariableDeclaration::semantic() {
 
 	//printfunc("VariableDeclaration");
+  if(idOfFunction(id) != -1 && isScopeGlobal()) {
+    std::cout << "id " << id << " was already decleared as a function" << std::endl;  
+    exit(0);  
+  } 
 	
   if(!isInThisScope(id)) {
     std::string tipo;
