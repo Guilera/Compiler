@@ -8,4 +8,5 @@ parser
 a.out
 parser
 casos/
+casos_num/
 *.zip
