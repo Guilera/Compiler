@@ -643,7 +643,6 @@ void exitScope(std::ostream &os) {
 
     for(auto iterator = paramDec.begin(); iterator != paramDec.end() && f; iterator++) {
     	if((*iterator).name == toDelete) {
-    		os << "addiu $sp $sp " << (*iterator).sz*4 << std::endl;
       	paramDec.erase(iterator);
       	break;
       }
