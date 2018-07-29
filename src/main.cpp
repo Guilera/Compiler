@@ -19,21 +19,14 @@ int main(const int argc, const char **argv) {
 
   if(argc > 2) {
 	std::ofstream output(argv[2], std::ios::out);
-	if (output.is_open()) {
-	  yyparse();
-	  program.semantic();
-	  program.print(output);
-	} else {
-	  std::cout << "Impossible to open file " << argv[2] << std::endl;
-	}
+		if (output.is_open()) {
+			yyparse();
+			program.codegen(output);
+		} else {
+			std::cout << "Impossible to open file " << argv[2] << std::endl;
+		}
   } else {
-
     yyparse();
-  	std::cout << std::endl << std::endl << std::endl << "Semantico " << std::endl << std::endl << std::endl;
-	program.semantic();
-	std::cout << std::endl << std::endl;
-	std::cout << "---------------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << std::endl << std::endl << std::endl << "Arvore " << std::endl << std::endl << std::endl;
-	program.print(std::cout);
+	program.codegen(std::cout);
   }
 }

@@ -20,6 +20,7 @@ class Node {
   virtual ~Node() = default;
   virtual void print(std::ostream &);
   virtual void semantic();
+  virtual void codegen(std::ostream &);
 };
 
 class Declaration : public Node {
@@ -43,6 +44,7 @@ class Program : public Node {
 
   Program();
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -52,6 +54,7 @@ class VariableDeclaration : public Declaration {
   VariableDeclaration(int, std::string &);
   VariableDeclaration(int, std::string &, int);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -64,6 +67,7 @@ class Param : public Node {
   Param(int, std::string &);
   Param(int, std::string &, bool);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -76,6 +80,7 @@ class CompoundStatement : public Statement {
 
   CompoundStatement(std::vector<std::shared_ptr<VariableDeclaration>> &, std::vector<std::shared_ptr<Statement>> &);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -87,6 +92,7 @@ class FunctionDeclaration : public Declaration {
   FunctionDeclaration(int, std::string &, std::shared_ptr<CompoundStatement>);
   FunctionDeclaration(int, std::string &, std::vector<std::shared_ptr<Param>> &, std::shared_ptr<CompoundStatement>);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -98,6 +104,7 @@ class Selection : public Statement {
   Selection(std::shared_ptr<Expression>, std::shared_ptr<Statement>);
   Selection(std::shared_ptr<Expression>, std::shared_ptr<Statement>, std::shared_ptr<Statement>);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -108,6 +115,7 @@ class Iteration : public Statement {
 
   Iteration(std::shared_ptr<Expression>, std::shared_ptr<Statement>);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -118,6 +126,7 @@ class Return : public Statement {
   Return();
   Return(std::shared_ptr<Expression>);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -129,6 +138,7 @@ class Variable : public Expression {
   Variable(std::string &);
   Variable(std::string &, std::shared_ptr<Expression>);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -139,6 +149,7 @@ class Assign : public Expression {
 
   Assign(std::shared_ptr<Variable>, std::shared_ptr<Expression>);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -150,6 +161,7 @@ class FunctionCall : public Expression {
   FunctionCall(std::string &);
   FunctionCall(std::string &, std::vector<std::shared_ptr<Expression>> &);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -160,6 +172,7 @@ class BinaryOperation : public Expression {
 
   BinaryOperation(std::shared_ptr<Expression>, std::string &, std::shared_ptr<Expression>);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 
@@ -169,6 +182,7 @@ class Number : public Expression {
 
   Number(int);
   void semantic() override;
+  void codegen(std::ostream &) override;
   void print(std::ostream &) override;
 };
 };
