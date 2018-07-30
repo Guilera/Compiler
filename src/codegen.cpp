@@ -12,7 +12,7 @@
 int DEBUG = 0;
 
 using namespace tree;
-#define debug(x) os << "#" << #x << " = " << (x) << std::endl;
+#define debug(x) os << "# " << #x << " = " << (x) << std::endl;
 
 std::string ACC = "$a0"; // Accumulator
 std::string TEMP = "$t0"; // Temporary
@@ -75,14 +75,16 @@ bool isVoid;
 bool isInt = true;
 bool isAssign = false;
 bool thereIsRelop = false;
+bool cameFromFunc = false;
 int funcID = -1, ind;
 int contaIf = 0;
 int contaWhile = 0;
+int contaSizeLocalDec = 0;
 
 //-----------------------------------------------------------------------------------
 
 void createScope(bool isArgument);
-void exitScope(std::ostream &os);
+void exitScope(std::ostream &os, bool cameFromF);
 bool isInThisScope(std::string x);
 bool isScopeGlobal();
 void addVar(std::string x, std::string type);
@@ -154,7 +156,8 @@ void Program::codegen(std::ostream &os) {
   for(auto dec: declaration_list) {
     dec->codegen(os);
   }
-  exitScope(os);
+  
+  exitScope(os,0);
   
 
   os << std::endl << ".data" << std::endl;
@@ -227,7 +230,10 @@ void CompoundStatement::codegen(std::ostream &os) {
 
 	printfunc("CompoundStatement");
 	createScope(next);
-  	next = false;
+	next = false;
+  // debug(cameFromFunc);
+  bool saveCome = cameFromFunc;  
+  cameFromFunc = false;
 
   for(auto local_dec : local_declarations)
     local_dec->codegen(os);
@@ -235,7 +241,11 @@ void CompoundStatement::codegen(std::ostream &os) {
   for(auto stmt : statement_list)
     stmt->codegen(os);
 
-  exitScope(os);
+  cameFromFunc = saveCome;
+
+  contaSizeLocalDec = 0;
+  debug(saveCome);
+  exitScope(os, saveCome);
 }
 
 void FunctionDeclaration::codegen(std::ostream &os) {
@@ -259,7 +269,7 @@ void FunctionDeclaration::codegen(std::ostream &os) {
   func.back().push_back(id);
 
   if(param_list.size() == 0)
-  	func.back().push_back("void");
+    func.back().push_back("void");
   
   for(auto param : param_list) {
     if(param->is_array)
@@ -272,13 +282,17 @@ void FunctionDeclaration::codegen(std::ostream &os) {
     param->codegen(os);
   }
 
+  cameFromFunc = true;
   compound_stmt->codegen(os);  
+  cameFromFunc = false;
 
   std::cout << "_end_function_" << id << ':' << std::endl;
+  os << "addiu $sp $sp " << contaSizeLocalDec << std::endl;
   int paramSz = param_list.size();
   TOP(RA, os);
-  os << "addiu $sp $sp " << paramSz*4 + 8 << std::endl;
-  exitScope(os);
+  os << "addiu $sp $sp " << 8 << std::endl;
+  contaSizeLocalDec = 0;
+  exitScope(os,0);
 
   if(id != "main") {
     os << "lw  $fp  0($sp)" << std::endl;
@@ -319,7 +333,7 @@ void Selection::codegen(std::ostream &os) {
   if_stmt->codegen(os);
 
   os << "_end_if_" << saveContaIf << ':' << std::endl;
-  exitScope(os);
+  exitScope(os,0);
 }
 
 void Iteration::codegen(std::ostream &os) {
@@ -347,7 +361,7 @@ void Iteration::codegen(std::ostream &os) {
 
   os << "j _while_" << saveContaWhile << std::endl;
   os << "_end_while_" << saveContaWhile << ':' << std::endl;
-  exitScope(os);
+  exitScope(os,0);
 
 } 
 
@@ -618,7 +632,7 @@ void createScope(bool isArgument) {
   scope.push_back(ss("$","$",isArgument));
 }
 
-void exitScope(std::ostream &os) {
+void exitScope(std::ostream &os, bool cameFromF) {
 
   if(scope.size() == 0)
     return;
@@ -635,7 +649,10 @@ void exitScope(std::ostream &os) {
     for(auto iterator = localDec.begin(); iterator != localDec.end(); iterator++) {
     	if((*iterator).name == toDelete) {
     		f = false;
-    		os << "addiu $sp $sp " << (*iterator).sz*4 << std::endl;
+        if(!cameFromF)
+    		  os << "addiu $sp $sp " << (*iterator).sz*4 << std::endl;
+        else 
+          contaSizeLocalDec += (*iterator).sz*4; 
       	localDec.erase(iterator);
       	break;
       }
@@ -643,6 +660,7 @@ void exitScope(std::ostream &os) {
 
     for(auto iterator = paramDec.begin(); iterator != paramDec.end() && f; iterator++) {
     	if((*iterator).name == toDelete) {
+    		os << "addiu $sp $sp " << 4 << std::endl;
       	paramDec.erase(iterator);
       	break;
       }
