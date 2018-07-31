@@ -286,7 +286,7 @@ void FunctionDeclaration::codegen(std::ostream &os) {
   compound_stmt->codegen(os);  
   cameFromFunc = false;
 
-  std::cout << "_end_function_" << id << ':' << std::endl;
+  os << "_end_function_" << id << ':' << std::endl;
   os << "addiu $sp $sp " << contaSizeLocalDec << std::endl;
   int paramSz = param_list.size();
   TOP(RA, os);
@@ -371,7 +371,7 @@ void Return::codegen(std::ostream &os) {
     isInt = true;
 	  expression->codegen(os);
   }
-  std::cout << "j _end_function_" << func.back()[1] << std::endl;
+  os << "j _end_function_" << func.back()[1] << std::endl;
 } 
 
 void Variable::codegen(std::ostream &os) {
