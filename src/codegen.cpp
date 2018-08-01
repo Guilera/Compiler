@@ -21,42 +21,42 @@ std::string FP = "$fp"; // Frame Pointer
 std::string RA = "$ra"; // Return Address
 
 void PUSH(std::string reg, std::ostream &os) {
-  os << "sw " << reg << " 0($sp)" << std::endl; // put the value of reg in top of the stack
-  os << "addiu $sp $sp -4" << std::endl;		// deslocate stack pointer to the next empty slot
+	os << "sw " << reg << " 0($sp)" << std::endl; // put the value of reg in top of the stack
+	os << "addiu $sp $sp -4" << std::endl;		// deslocate stack pointer to the next empty slot
 }
 
 void POP(std::ostream &os) {
-  os << "addiu $sp $sp 4" << std::endl;
+	os << "addiu $sp $sp 4" << std::endl;
 }
 
 void nPOP(int times, std::ostream &os) {
-  os << "addiu $sp $sp " << times*4 << std::endl;
+	os << "addiu $sp $sp " << times*4 << std::endl;
 }
 
 void TOP(std::string reg, std::ostream &os) {
-  os << "lw " << reg << " 4($sp)" << std::endl;
+	os << "lw " << reg << " 4($sp)" << std::endl;
 }
 
 void LOAD_IMMEDIATE(std::string reg, int value, std::ostream &os) {
-  os << "li " << reg << " " << value << std::endl;
+	os << "li " << reg << " " << value << std::endl;
 }
 //-----------------------------------------------------------------------------------
 
 struct ss {
-  std::string id, typeOfV;
-  bool isArgument;
+	std::string id, typeOfV;
+	bool isArgument;
 
-  ss () {}
+	ss () {}
 
-  ss(std::string id, std::string typeOfV, bool isArgument) : id(id), typeOfV(typeOfV), isArgument(isArgument) {}
+	ss(std::string id, std::string typeOfV, bool isArgument) : id(id), typeOfV(typeOfV), isArgument(isArgument) {}
 };
 
 struct variable {
-  int size;
-  std::string name;
-  
-  variable() {}
-  variable(std::string name, int size) : name(name), size(size) {}
+	int size;
+	std::string name;
+	
+	variable() {}
+	variable(std::string name, int size) : name(name), size(size) {}
 };
 
 //-----------------------------------------------------------------------------------
@@ -74,11 +74,10 @@ bool next = false;
 bool isVoid;
 bool isInt = true;
 bool isAssign = false;
-bool thereIsRelop = false;
 bool cameFromFunc = false;
 int funcID = -1, ind;
-int contaIf = 0;
-int contaWhile = 0;
+int if_counter = 0;
+int while_counter = 0;
 int contaSizeLocalDec = 0;
 
 //-----------------------------------------------------------------------------------
@@ -112,98 +111,98 @@ void Program::codegen(std::ostream &os) {
 
 	// inicia o programa e chama a função main
 	os << "main: " << std::endl;
-  	os << "jal _main" << std::endl << std::endl;
+		os << "jal _main" << std::endl << std::endl;
 
 	// finaliza o programa (10 é o codigo do sistema para finalizar  o programa)
-  	os << "li $v0 10" << std::endl;
+		os << "li $v0 10" << std::endl;
 	os << "syscall" << std::endl << std::endl;
 
-  	/*** IMPLEMENTAÇÃO DA FUNÇÃO INPUT ***/
-  	// adiciona na lista de funções
-  	func.emplace_back(std::initializer_list<std::string>{"int", "input", "void"});
-  
-  	// define o label
-  	os << "_input:" << std::endl;
+		/*** IMPLEMENTAÇÃO DA FUNÇÃO INPUT ***/
+		// adiciona na lista de funções
+		func.emplace_back(std::initializer_list<std::string>{"int", "input", "void"});
+	
+		// define o label
+		os << "_input:" << std::endl;
 
 	// move o stack pointer para o frame pointer
-  	os << "move $fp $sp" << std::endl;
+		os << "move $fp $sp" << std::endl;
 
-  	// push return address
-  	PUSH(RA, os);
-  
-  	// lê int (5 é o codigo system call para ler inteiros. O valor lido é armazenado em $v0)
-  	LOAD_IMMEDIATE("$v0", 5, os); 
-  	os << "syscall " << std::endl;
-  
-  	// coloca o valor lido no acumulador
-  	os << "move $a0 $v0" << std::endl;
+		// push return address
+		PUSH(RA, os);
+	
+		// lê int (5 é o codigo system call para ler inteiros. O valor lido é armazenado em $v0)
+		LOAD_IMMEDIATE("$v0", 5, os); 
+		os << "syscall " << std::endl;
+	
+		// coloca o valor lido no acumulador
+		os << "move $a0 $v0" << std::endl;
 
-  	// pop return address
-  	TOP(RA, os);
-  	POP(os);
+		// pop return address
+		TOP(RA, os);
+		POP(os);
 
-  	// pop frame pointer
-  	TOP(FP, os);
-  	POP(os);
+		// pop frame pointer
+		TOP(FP, os);
+		POP(os);
 
-  	// retorna para quem chamou(return addresss)
-  	os << "jr $ra" << std::endl << std::endl;
+		// retorna para quem chamou(return addresss)
+		os << "jr $ra" << std::endl << std::endl;
 
-  	/*** IMPLEMENTAÇÃO DA FUNÇÃO PRINTLN ***/
-  	// adiciona na lista de funções
-  	func.emplace_back(std::initializer_list<std::string>{"void", "println", "int"});
+		/*** IMPLEMENTAÇÃO DA FUNÇÃO PRINTLN ***/
+		// adiciona na lista de funções
+		func.emplace_back(std::initializer_list<std::string>{"void", "println", "int"});
 
-  	// define o label
-  	os << "_println:" << std::endl;
+		// define o label
+		os << "_println:" << std::endl;
 
-  	// move o stack pointer para o frame pointer
-  	os << "move  $fp  $sp" << std::endl;
+		// move o stack pointer para o frame pointer
+		os << "move  $fp  $sp" << std::endl;
 
-  	// push return address
-  	PUSH(RA, os);
+		// push return address
+		PUSH(RA, os);
 
-  	// Adiciona o valor do paramêtro no acumulador
-  	os << "lw $a0 4($fp)" << std::endl;
+		// Adiciona o valor do paramêtro no acumulador
+		os << "lw $a0 4($fp)" << std::endl;
 
-  	// imprime o valor do acumulador (1 é o codigo system call para imprimir inteiro armazenado no acumulador)
-  	LOAD_IMMEDIATE("$v0", 1, os);
-  	os << "syscall" << std::endl;
+		// imprime o valor do acumulador (1 é o codigo system call para imprimir inteiro armazenado no acumulador)
+		LOAD_IMMEDIATE("$v0", 1, os);
+		os << "syscall" << std::endl;
 
-  	// imprime quebra de linha
-  	os << "addi $a0, $0, 0xA" << std::endl; // 0xA é codigo ascii para '\n'
-  	os << "addi $v0, $0, 0xB" << std::endl; // 0xB modifica a interpretação do acumulador como codigo ascii
-  	os << "syscall" << std::endl;
+		// imprime quebra de linha
+		os << "addi $a0, $0, 0xA" << std::endl; // 0xA é codigo ascii para '\n'
+		os << "addi $v0, $0, 0xB" << std::endl; // 0xB modifica a interpretação do acumulador como codigo ascii
+		os << "syscall" << std::endl;
 
-  	// pop return address e paramêtro
-  	TOP(RA, os);
-  	nPOP(2, os);
+		// pop return address e paramêtro
+		TOP(RA, os);
+		nPOP(2, os);
 
-  	// pop frame pointer
-  	TOP(FP, os);
-  	POP(os);
-  
-  	// retorna para quem chamou(return addresss)
-  	os << "jr $ra" << std::endl << std::endl; 
+		// pop frame pointer
+		TOP(FP, os);
+		POP(os);
+	
+		// retorna para quem chamou(return addresss)
+		os << "jr $ra" << std::endl << std::endl; 
 
-  	// codegen das declarações globais(variaveis e funções)
-  	for(auto dec: declaration_list) {
+		// codegen das declarações globais(variaveis e funções)
+		for(auto dec: declaration_list) {
 		dec->codegen(os);
-  	}
-  
-  	// finaliza escopo global
-  	exitScope(os,0);
+		}
+	
+		// finaliza escopo global
+		exitScope(os,0);
 
-  	// aloca todas as variaveis globais	
-  	os << std::endl << ".data" << std::endl;
-  	for(variable x: globalVar) {
+		// aloca todas as variaveis globais	
+		os << std::endl << ".data" << std::endl;
+		for(variable x: globalVar) {
 		os << x.name << ":    .space " << x.size * 4 << std::endl;
 	}
 }
 
 void VariableDeclaration::codegen(std::ostream &os) {
-  
-  // se não pertencer a esse escopo, significa que não foi declarada, então declara
-  if(!isInThisScope(id)) {
+	
+	// se não pertencer a esse escopo, significa que não foi declarada, então declara
+	if(!isInThisScope(id)) {
 	std::string tipo = (type == INT) ? "int" : "void";
 
 	// se num for diferente de zero, significa que a variavel é um array de tamanho igual 'num', caso contrário é um inteiro
@@ -221,22 +220,22 @@ void VariableDeclaration::codegen(std::ostream &os) {
 		// put in data
 		globalVar.push_back(variable(id, allocation_size));
 	}
-  }
+	}
 }
 
 void Param::codegen(std::ostream &os) {
-  
-  // se não pertencer a esse escopo então adiciona
-  if(!isInThisScope(id)) {
+	
+	// se não pertencer a esse escopo então adiciona
+	if(!isInThisScope(id)) {
 	std::string tipo;
 	if(type == INT) {
-	  tipo = is_array ? "array" : "int";
-	  paramDec.emplace_back(id, 1);
-	  } else if(type == VOID) {
-	  tipo = "void";
+		tipo = is_array ? "array" : "int";
+		paramDec.emplace_back(id, 1);
+		} else if(type == VOID) {
+		tipo = "void";
 	}
 	addVar(id,tipo);
-  }
+	}
 }
 
 void CompoundStatement::codegen(std::ostream &os) {
@@ -319,15 +318,17 @@ void FunctionDeclaration::codegen(std::ostream &os) {
 	compound_stmt->codegen(os);  
 	cameFromFunc = false;
 
+	// label de finalização da função
 	os << "_end_function_" << id << ':' << std::endl;
-	os << "addiu $sp $sp " << contaSizeLocalDec << std::endl;
-	int paramSz = param_list.size();
+
+	// pop variaveis locais
+	nPOP(contaSizeLocalDec, os);
 	
 	// pop return address
 	TOP(RA, os);
 	POP(os);
 
-	// reseta contador de declarações locais
+	// reseta contador de declarações locais e finaliza o escopo da função
 	contaSizeLocalDec = 0;
 	exitScope(os,false);
 
@@ -340,272 +341,290 @@ void FunctionDeclaration::codegen(std::ostream &os) {
 }
 
 void Selection::codegen(std::ostream &os) {
-	printfunc("Selection");
+	
+	// cria escopo do if
 	createScope(false);
-	// os << "Scope Created in Selection" << std::endl;
 
-  isInt = true;
-  int saveContaIf = contaIf;
-  nextBranch = "_true_branch_" + std::to_string(saveContaIf);
-  thereIsRelop = false;
-  expression->codegen(os);
-  if(!thereIsRelop) {
-	os << "li $t0 0" << std::endl;
-	LOAD_IMMEDIATE(TEMP, 0, os);
-	os << "bne $t0 $a0 " << "_true_branch_" << saveContaIf << std::endl;
-  }
-  thereIsRelop = false;
+	isInt = true;
 
-  os << "_false_branch_" << saveContaIf << ':' << std::endl;
-  if(else_stmt) {
-	contaIf++;
-	else_stmt->codegen(os);
-  }
+	// pega o valor do contador de if's 
+		int current_if = if_counter++;
 
-  os << "j _end_if_" << saveContaIf << std::endl;  
-  os << "_true_branch_" << saveContaIf << ':' << std::endl;
-  contaIf++;
-  if_stmt->codegen(os);
+	// codegen da expressão do if, o valor final da expressão estará no acumulador
+		expression->codegen(os);
 
-  os << "_end_if_" << saveContaIf << ':' << std::endl;
-  exitScope(os,0);
+	/* compara o valor do acumulador com $0.
+	 * if 0 then não entra
+	 * else entra
+	 */
+	os << "bne $0 $a0 " << "_begin_if_" << current_if << std::endl;
+
+	// executa o codegen do else, se houver, caso contrário encerra o if
+		if(else_stmt)
+		else_stmt->codegen(os);
+		os << "j _end_if_" << current_if << std::endl;  
+
+	// label de inicialização do if
+		os << "_begin_if_" << current_if << ':' << std::endl;
+
+	// codegen do if
+		if_stmt->codegen(os);
+
+	// label de finalização do if
+		os << "_end_if_" << current_if << ':' << std::endl;
+	
+	// finaliza o escopo da função
+	exitScope(os,false);
 }
 
 void Iteration::codegen(std::ostream &os) {
-	printfunc("Iteration");
-  createScope(false);
-  // os << "Scope Created in if statement" << std::endl;
+	
+	// cria escopo para o while
+	createScope(false);
+	
+	// pega o valor do contador de while's
+	int current_while = while_counter++;
 
-  int saveContaWhile = contaWhile;
-  nextBranch = "_start_while_" + std::to_string(saveContaWhile);
-  os << "_while_" << saveContaWhile << ":" << std::endl; 
-  isInt = true;
-  thereIsRelop = false;
-  expression->codegen(os);
-  if(!thereIsRelop) {
-	LOAD_IMMEDIATE(TEMP, 0, os);
-	os << "bne $t0 $a0 " << "_start_while_" << saveContaWhile << std::endl;
-  }
+	// label de inicialização do while
+	os << "_begin_while_" << current_while << ":" << std::endl;
+	isInt = true;
 
-  thereIsRelop = false;
-  os << "j _end_while_" << saveContaWhile << std::endl; 
-  os << "_start_while_" << saveContaWhile << ":" << std::endl; 
+	// codegen da expressão do while. O resultado da expressão estará no acumulador
+	expression->codegen(os);
 
-  contaWhile++;
-  statement->codegen(os);
+	/* compara o valor do acumulador com $0.
+	 * if 0 then finaliza
+	 * else continua
+	 */
+	os << "beq $0 $a0 " << "_end_while_" << current_while << std::endl;
 
-  os << "j _while_" << saveContaWhile << std::endl;
-  os << "_end_while_" << saveContaWhile << ':' << std::endl;
-  exitScope(os,0);
+	// codegen do bloco do while
+	statement->codegen(os);
 
+	// loop jump
+	os << "j _start_while_" << current_while << std::endl;
+
+	// label de finalização do while
+	os << "_end_while_" << current_while << ':' << std::endl;
+
+	// finaliza o escopo do while
+	exitScope(os,false);
 } 
 
 void Return::codegen(std::ostream &os) {
-	printfunc("Return");
-  if(expression) {
-	isInt = true;
-	  expression->codegen(os);
-  }
-  os << "j _end_function_" << func.back()[1] << std::endl;
+	if(expression) {
+		isInt = true;
+		expression->codegen(os);
+	}
+
+	// jump para o label da ultima função adiconada na lista de funções
+	os << "j _end_function_" << func.back()[1] << std::endl;
 } 
 
 void Variable::codegen(std::ostream &os) {
-	printfunc("Variable");
 
-  std::string aux = isDeclared(id);
-  bool globalScope = false;
-  debug(id);
-  if(!isAssign && !isArg) {
-	if(indexFromFpParam(func.size()-1, id) != -1){
+	std::string aux = isDeclared(id);
+	bool globalScope = false;
 
-	  if(!expression){
-		os << "lw $a0 " << indexFromFpParam(func.size()-1, id) << "($fp) "  << std::endl;
-	  }
-	  else if(expression) {
+	if(!isAssign && !isArg) {
+		// pega o indice do parametro em ao relação frame pointer
+		int parameter_index = indexFromFpParam(func.size() - 1, id);
 		
-		os << "addiu $a0 $fp " << indexFromFpParam(func.size()-1, id) << std::endl;
-		os << "lw $a0 0($a0)" << std::endl;
+		// verifica se é um index válido
+		if(parameter_index != -1){
 
-	  }
-	} else if(indexFromFpLocal(id) != -1) {
-	  if(!expression) {
-		os << "lw $a0 " << indexFromFpLocal(id) << "($fp) " << std::endl;
-	  }
-	  else if(expression) {
-		
-		os << "addiu $a0 $fp" << indexFromFpLocal(id) << std::endl;
-		
-	  }
-	}  else {
-		// global scope
-	  globalScope = true;
+			// se não for um array
+			if(!expression) {
+				os << "lw $a0 " << parameter_index << "($fp)"  << std::endl;
+			} else if(expression) {
+				// se for array load a partir do primeiro endereço
+				os << "addiu $a0 $fp " << parameter_index << std::endl;
+				os << "lw $a0 0($a0)" << std::endl;
+			}
+		} else if(indexFromFpLocal(id) != -1) {
+			if(!expression) {
+				os << "lw $a0 " << indexFromFpLocal(id) << "($fp) " << std::endl;
+				}
+				else if(expression) {
+				os << "addiu $a0 $fp" << indexFromFpLocal(id) << std::endl;
+				}
+		}  else {
+			// pertence ao escopo global
+			globalScope = true;
 
-	  if(!expression) {
-		os << "la $a0 " << id << std::endl;
-		os << "lw $a0 0($a0)" << std::endl;
-	  } else {
-		os << "la $a0 " << id << std::endl;
-	  }
-	}
-
-  } else if(isArg) {
-
-	if(indexFromFpParam(func.size()-1, id) != -1){
-
-	  if(aux == "int"){
-		os << "lw $a0 " << indexFromFpParam(func.size()-1, id) << "($fp) "  << std::endl;
-	  }
-	  else if(aux == "array") {
-
-		os << "addiu $a0 $fp " << indexFromFpParam(func.size()-1, id) << std::endl;
-		os << "lw $a0 0($a0)" << std::endl;
 		if(!expression) {
-		  PUSH(ACC, os);       
+			os << "la $a0 " << id << std::endl;
+			os << "lw $a0 0($a0)" << std::endl;
+		} else {
+			os << "la $a0 " << id << std::endl;
 		}
-	  }
+		}
 
-	} else if(indexFromFpLocal(id) != -1) {
+	} else if(isArg) {
 
-	  if(aux == "int") {
-		os << "lw $a0 " << indexFromFpLocal(id) << "($fp) " << std::endl;
-	  }
-	  else if(aux == "array") {
+		if(indexFromFpParam(func.size()-1, id) != -1){
+
+			if(aux == "int"){
+				os << "lw $a0 " << indexFromFpParam(func.size()-1, id) << "($fp) "  << std::endl;
+			}
+			else if(aux == "array") {
+
+				os << "addiu $a0 $fp " << indexFromFpParam(func.size()-1, id) << std::endl;
+				os << "lw $a0 0($a0)" << std::endl;
+				if(!expression) {
+				PUSH(ACC, os);       
+				}
+			}
+
+		} else if(indexFromFpLocal(id) != -1) {
+
+			if(aux == "int")
+				os << "lw $a0 " << indexFromFpLocal(id) << "($fp) " << std::endl;
+			else if(aux == "array")				
+				os << "addiu $a0 $fp " << indexFromFpLocal(id) << std::endl;
+
+		} else {
+			// global scope
+			globalScope = true;
+			if(!expression) {
+				os << "la $a0 " << id << std::endl;
+				os << "lw $a0 0($a0)" << std::endl;
+			} else {
+				os << "la $a0 " << id << std::endl;
+			}
+		}
+
+	} else if (isAssign) {
+
+		if(indexFromFpParam(func.size()-1, id) != -1){
+
+			if(!expression){
+				os << "addiu $a0 " << "$fp " << indexFromFpParam(func.size()-1, id) << std::endl;
+			}
+			else if(expression) {
+				os << "addiu $a0 $fp " << indexFromFpParam(func.size()-1, id) << std::endl;
+				os << "lw $a0 0($a0)" << std::endl;
+			}
+		} else if(indexFromFpLocal(id) != -1) {
+			if(!expression)
+				os << "addiu $a0 " << "$fp " << indexFromFpLocal(id) << std::endl;
+			else
+				os << "addiu $a0 $fp " << indexFromFpLocal(id) << std::endl;
+		} else {
+			// global scope
+			globalScope = true;
+			if(!expression)
+				os << "la $a0 " << id << std::endl;
+			else
+				os << "la $a0 " << id << std::endl;
+		}
 		
-		os << "addiu $a0 $fp " << indexFromFpLocal(id) << std::endl;
-		
-	  } 
-	} else {
-
-	  // global scope
-	  globalScope = true;
-	  if(!expression) {
-		os << "la $a0 " << id << std::endl;
-		os << "lw $a0 0($a0)" << std::endl;
-	  } else {
-		os << "la $a0 " << id << std::endl;
-	  }
 	}
 
-  } else if (isAssign) {
+	if(funcID != -1 && !isOp) {
+		if(aux == "array" && expression)
+			aux = "int";
+	}
+	
+	aux = isDeclared(id);
+	int saveID = funcID;
+	if(aux == "array")  {
+		funcID = -1;
+	}
 
-	if(indexFromFpParam(func.size()-1, id) != -1){
-
-	  if(!expression){
-		os << "addiu $a0 " << "$fp " << indexFromFpParam(func.size()-1, id) << std::endl;
-	  }
-	  else if(expression) {
-		os << "addiu $a0 $fp " << indexFromFpParam(func.size()-1, id) << std::endl;
+	if(expression) {
+		isInt = true;
+		PUSH(ACC, os);
+		bool saveAss = isAssign, saveArg = isArg;
+		isAssign = false; 
+		isArg = false;
+		expression->codegen(os);
+		isAssign = saveAss; 
+		isArg = saveArg;
+		
+		if(globalScope)
+			LOAD_IMMEDIATE(TEMP, 4, os);
+		else
+			LOAD_IMMEDIATE(TEMP, -4, os);
+		
+		os << "mul $a0 $a0 $t0" << std::endl;
+		TOP(TEMP, os);
+		POP(os);
+		os << "add $a0 $a0 $t0" << std::endl;
+		if(!isAssign) {
 		os << "lw $a0 0($a0)" << std::endl;
-	  }
-	} else if(indexFromFpLocal(id) != -1) {
-	  if(!expression)  {
-		os << "addiu $a0 " << "$fp " << indexFromFpLocal(id) << std::endl;
-	  }
-	  else if(expression)  {
-		os << "addiu $a0 $fp " << indexFromFpLocal(id) << std::endl;
-	  }
-	} else {
-	  // global scope
-	  globalScope = true;
-	  if(!expression) {
-		os << "la $a0 " << id << std::endl;
-	  } else {
-		os << "la $a0 " << id << std::endl;
 		}
 	}
-	
-  }
 
-
-  if(funcID != -1 && !isOp) {
-	if(aux == "array" && expression)
-	  aux = "int";
-  }
-  
-  aux = isDeclared(id);
-  int saveID = funcID;
-  if(aux == "array")  {
-	funcID = -1;
-  }
-
-  if(expression) {
-	isInt = true;
-	PUSH(ACC, os);
-	bool saveAss = isAssign, saveArg = isArg;
-	isAssign = false; 
-	isArg = false;
-	expression->codegen(os);
-	isAssign = saveAss; 
-	isArg = saveArg;
-	
-	if(globalScope)
-	  LOAD_IMMEDIATE(TEMP, 4, os);
-	else
-	  LOAD_IMMEDIATE(TEMP, -4, os);
-	
-	os << "mul $a0 $a0 $t0" << std::endl;
-	TOP(TEMP, os);
-	POP(os);
-	os << "add $a0 $a0 $t0" << std::endl;
-	if(!isAssign) {
-	  os << "lw $a0 0($a0)" << std::endl;
-	}
-  }
-
-  funcID = saveID;
+	funcID = saveID;
 
 }
 
 void Assign::codegen(std::ostream &os) {
-  printfunc("Assign");
-  expression->codegen(os);
-  
-  PUSH(ACC, os);
+	
+	// codegen da expresão (rhs)
+	expression->codegen(os);
+	
+	// push acumulador
+	PUSH(ACC, os);
 
-  isAssign = true;
-  
-  var->codegen(os);
+	// seta flag de assignment
+	isAssign = true;
+	
+	// codegen da variavel
+	var->codegen(os);
 
-  isAssign = false;
-  TOP(TEMP, os);
-  POP(os);
-  os << "sw $t0 0($a0)" << std::endl;
-  os << "addiu $a0 $t0 0" << std::endl;
+	// reseta flag
+	isAssign = false;
 
-  isInt = true;
+	// pop valor da expressão para temp
+	TOP(TEMP, os);
+	POP(os);
+
+	// assingment
+	os << "sw $t0 0($a0)" << std::endl;
+	os << "addiu $a0 $t0 0" << std::endl;
+
+	isInt = true;
 } 
 
 void FunctionCall::codegen(std::ostream &os) {
-	printfunc("FunctionCall");
 
-  funcID = idOfFunction(id);
+	funcID = idOfFunction(id);
 
-  if(getType(funcID) == "void") {
-  	isInt = false;
-  }
+	if(getType(funcID) == "void") {
+		isInt = false;
+	}
 
-  PUSH(FP, os);
+	// push frame pointer
+	PUSH(FP, os);
 
-  ind = 2;
-  int sz = (func[funcID].size()-2 == 1 && func[funcID][2] == "void" ? 0 : func[funcID].size()-2);
-  if(args.size() != sz) {
+	// TODO: explicar
+	ind = 2;
+	int sz = (func[funcID].size()-2 == 1 && func[funcID][2] == "void" ? 0 : func[funcID].size()-2);
+	if(args.size() != sz) {
+		funcID = -1;
+		return;
+	}
+
+	// flags
+	int oldIsInt = isInt;
+	isArg = true;
+
+	// push argumentos
+	for(auto it = args.rbegin(); it != args.rend(); it++) {
+		isInt = true;
+		(*it)->codegen(os);
+		PUSH(ACC, os);
+	}
+
+	// jump para a função
+	os << "jal _" << id << std::endl;
+	
+	// flags
+	isArg = false;
+	isInt = oldIsInt;
 	funcID = -1;
-	return;
-  }
-
-  int oldIsInt = isInt;
-  isArg = true;
-  for(auto it = args.rbegin(); it != args.rend(); it++) {
-	auto a = *it;
-	isInt = true;
-	  a->codegen(os);
-	PUSH(ACC, os);
-  }
-  os << "jal _" << id << std::endl;
-  isArg = false;
-
-  isInt = oldIsInt;
-  funcID = -1;
 } 
 
 void BinaryOperation::codegen(std::ostream &os) {
@@ -616,65 +635,60 @@ void BinaryOperation::codegen(std::ostream &os) {
 	mapa["*"] = "mul";
 	mapa["/"] = "div"; 
 
-  printfunc("BinaryOperation");
-  if(funcID != -1 && !isOp) {
+	printfunc("BinaryOperation");
+	if(funcID != -1 && !isOp) {
 	if(func[funcID][ind++] != "int") {
-  	}  
-  }
-  isOp = true;
-  isInt = true;
-  lhs->codegen(os);
+		}  
+	}
+	isOp = true;
+	isInt = true;
+	lhs->codegen(os);
 
-  PUSH(ACC, os);
-  
-  isOp = true;
-  isInt = true;
-  rhs->codegen(os);
-  TOP(TEMP, os);
-  POP(os);
+	PUSH(ACC, os);
+	
+	isOp = true;
+	isInt = true;
+	rhs->codegen(os);
+	TOP(TEMP, os);
+	POP(os);
 
-  if(mapa.count(op)) {
-  	os << mapa[op] << " $a0  $t0  $a0" << std::endl;
-  } else {
+	if(mapa.count(op)) {
+		os << mapa[op] << " $a0  $t0  $a0" << std::endl;
+	} else {
 
-  	mapa["=="] = "beq";
-  	mapa["<="] = "ble";
-  	mapa["<"] = "blt";
-  	mapa[">"] = "bgt";
-  	mapa[">="] = "bge";
-  	mapa["!="] = "bne";
+		mapa["=="] = "beq";
+		mapa["<="] = "ble";
+		mapa["<"] = "blt";
+		mapa[">"] = "bgt";
+		mapa[">="] = "bge";
+		mapa["!="] = "bne";
 
 	thereIsRelop = true;
-  	os << mapa[op] << " $t0 $a0 " << nextBranch << std::endl;   
-  }
-  isOp = false;
+		os << mapa[op] << " $t0 $a0 " << nextBranch << std::endl;   
+	}
+	isOp = false;
 } 
 
 void Number::codegen(std::ostream &os) {
-	printfunc("Number");
-  LOAD_IMMEDIATE(ACC, number, os);
-
-	if(funcID != -1 && !isOp) {
-	if(func[funcID][ind++] != "int") {
-  	}  
-  }
+	// carrega o valor imediato no acumulador
+	LOAD_IMMEDIATE(ACC, number, os);
 } 
 
 // ---------------------------------------------------------------------------------------
 
 
 void createScope(bool isArgument) {
-  scope.push_back(ss("$","$",isArgument));
+	scope.push_back(ss("$","$",isArgument));
 }
 
 void exitScope(std::ostream &os, bool cameFromF) {
 
-  if(scope.size() == 0)
+	if(scope.size() == 0)
 	return;
 
-  auto it = scope.end();
-  it--;
-  while(it->id != "$") {
+	auto it = scope.end();
+	it--;
+	while(it->id != "$") {
 	os << "# " << it->id << " removed" << std::endl;
 	std::string toDelete = it->id;
 	it = scope.erase(it);
@@ -685,66 +699,66 @@ void exitScope(std::ostream &os, bool cameFromF) {
 		if((*iterator).name == toDelete) {
 			f = false;
 		if(!cameFromF)
-			  os << "addiu $sp $sp " << (*iterator).size*4 << std::endl;
+				os << "addiu $sp $sp " << (*iterator).size*4 << std::endl;
 		else 
-		  contaSizeLocalDec += (*iterator).size*4; 
-	  	localDec.erase(iterator);
-	  	break;
-	  }
+			contaSizeLocalDec += (*iterator).size; 
+			localDec.erase(iterator);
+			break;
+		}
 	}
 
 	for(auto iterator = paramDec.begin(); iterator != paramDec.end() && f; iterator++) {
 		if((*iterator).name == toDelete) {
 			os << "addiu $sp $sp " << 4 << std::endl;
-	  	paramDec.erase(iterator);
-	  	break;
-	  }
+			paramDec.erase(iterator);
+			break;
+		}
 	}
 
-  }
-  scope.erase(it);
+	}
+	scope.erase(it);
 
 }
 
 bool isInThisScope(std::string x) {
-  auto it = scope.rbegin();
+	auto it = scope.rbegin();
 
-  while(it->id != "$" || it->isArgument == true) {
+	while(it->id != "$" || it->isArgument == true) {
 	if(it->id == x)
-	  return true;
+		return true;
 	it++;
-  }
-  return false;
+	}
+	return false;
 }
 
 bool isScopeGlobal() {
-  int c = 0;
-  for(auto it: scope) {
+	int c = 0;
+	for(auto it: scope) {
 	if(it.id == "$")
-	  c++;
-  }
-  return (c==1);
+		c++;
+	}
+	return (c==1);
 }
 
 void addVar(std::string x, std::string type) {
-  scope.push_back(ss(x,type, false));
+	scope.push_back(ss(x,type, false));
 }
 
 std::string isDeclared(std::string x) {
-  for(auto it = scope.rbegin(); it != scope.rend(); it++) {
+	for(auto it = scope.rbegin(); it != scope.rend(); it++) {
 	if(it->id == x)
-	  return it->typeOfV;
-  }
-  return "";
+		return it->typeOfV;
+	}
+	return "";
 }
 
 int idOfFunction(std::string x) {
-  for(int i = 0; i < func.size(); i++) {
+	for(int i = 0; i < func.size(); i++) {
 	if(func[i][1] == x) {
-	  return i;
+		return i;
 	}
-  }
-  return -1;
+	}
+	return -1;
 }
 
 std::string getType(int id) {
@@ -754,32 +768,32 @@ std::string getType(int id) {
 	return "int";
 }
 
-int indexFromFpParam(int lastFunc, std::string var) {
-  int ident = lastFunc;
-  int cont = 4;
-  for(int i = 0; i < paramDec.size(); i++, cont += 4) {
-	if(paramDec[i].name == var)
-	  return cont;
-  }
+int indexFromFpParam(int lastFunc, std::string variable_name) {
+		int count = 4;
+		for(auto param : paramDec) {
+		if(param.name == variable_name)
+				return count;
+		count += 4;
+		}
 
-  return -1;  
+		return -1;  
 }
 
 int indexFromFpLocal(std::string var) {
 
-  int cont = 4;
+	int cont = 4;
 
-  for(int i = 0; i < localDec.size(); i++) {
+	for(int i = 0; i < localDec.size(); i++) {
 	cont += localDec[i].size*4;
-  }
-  
-  for(int i = localDec.size()-1; i >= 0; i--) {
+	}
+	
+	for(int i = localDec.size()-1; i >= 0; i--) {
 	cont -= localDec[i].size*4;
 	if(localDec[i].name == var) 
-	  return -cont;
-  }
+		return -cont;
+	}
 
-  return -1;
+	return -1;
 }
 
 bool isVarGlobal(std::string id) {
