@@ -402,7 +402,7 @@ void Iteration::codegen(std::ostream &os) {
 	statement->codegen(os);
 
 	// loop jump
-	os << "j _start_while_" << current_while << std::endl;
+	os << "j _begin_while_" << current_while << std::endl;
 
 	// label de finalização do while
 	os << "_end_while_" << current_while << ':' << std::endl;
