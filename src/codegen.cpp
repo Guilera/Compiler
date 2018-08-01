@@ -108,6 +108,7 @@ void Program::codegen(std::ostream &os) {
   	os << "jal _main" << std::endl << std::endl;
 
 	// finaliza o programa (10 é o codigo do sistema para finalizar  o programa)
+	os << "_end_program:" << std::endl;
   	os << "li $v0 10" << std::endl;
 	os << "syscall" << std::endl << std::endl;
 
@@ -540,6 +541,9 @@ void Variable::codegen(std::ostream &os) {
 		isArgCGen = false;
 		// avalia a expressao
 		expression->codegen(os);
+
+		// se o valor no acumulador for negativo (acesso de memoria invalida) finaliza a execução
+		os << "bltz $a0, _end_program" << std::endl;
 		isAssignCGen = saveAssign; 
 		
 		if(globalScope) {
