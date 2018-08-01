@@ -11,4 +11,5 @@ casos/
 casos_num/
 *.zip
 .vscode
-.asm
+*.asm
+*.jar
