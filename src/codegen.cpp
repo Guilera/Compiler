@@ -355,7 +355,7 @@ void Selection::codegen(std::ostream &os) {
 
 	// executa o codegen do else, se houver, caso contrário encerra o if
 	if(else_stmt)
-	else_stmt->codegen(os);
+		else_stmt->codegen(os);
 	os << "j _end_if_" << current_if << std::endl;  
 
 	// label de inicialização do if
@@ -652,24 +652,33 @@ void BinaryOperation::codegen(std::ostream &os) {
 		// operações aritimeticas
   		os << mapa[op] << " $a0  $t0  $a0" << std::endl;
 	} else {
+		// XOR x 1 nega o valor de x
+		// XOR 0 1 -> 1 (true)
+		// XOR 1 0 -> 1 (true)
+		// XOR 1 1 -> 0 (false)
+		
 		if(op == "==") {
-			// objetivo 
+			// objetivo t0 == a0 ? true(a0 = 1) : false(a0 = 0)
+
 			// a0 = t0 - a0
 			os << "sub $a0 $t0 $a0" << std::endl;
 			
-			// se a0 > 0 ou a0 < 0 então 0 < |a0| é verdadeiro, ou seja, a0 != 0;	a0 <- 1
-			// caso contrario a0 == 0 então 0 < 0 é falso, ou seja, a0 == 0;		a0 <- 0
+			// se a0 > 0 ou a0 < 0 então 0 < |a0| -> true, ou seja, a0 != 0;	a0 <- 1
+			// caso contrario a0 == 0 então 0 < 0 -> falso;						a0 <- 0
 			os << "sltu $a0 $0 $a0" << std::endl;
 
-			// transforma false em true
-			// XOR 0 1 ou XOR 1 0 então 1 (true)
-			// XOR 1 1 ou XOR 0 0 então 0 (false)
+			// inverte o valor de a0
 			os << "xori $a0 $a0 1" << std::endl;
+
 		}else if(op == "<") {
+			// objetivo t0 < a0 ? true(a0 = 1) : false(a0 = 0)
+
 			// se t0 < a0 então a0 = 1 senão a0 = 0
 			os << "slt $a0 $t0 $a0" << std::endl;  		
 		} else if(op == "<=") {
-			// se a0 < t0 então t0 > a0 portanto a0 = 1
+			// objetivo t0 <= a0 ? true(a0 = 1) : false(a0 = 0)
+
+			// se a0 > t0 então -> a0 = 1(true)
 			// se a0 >= t0 então to
 			os << "slt $a0 $a0 $t0" << std::endl;
 			os << "xori $a0 $a0 1" << std::endl;

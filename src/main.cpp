@@ -29,6 +29,6 @@ int main(const int argc, const char **argv) {
   } else {
     yyparse();
     program.semantic();
-	program.codegen(std::cout);
+		program.codegen(std::cout);
   }
 }
