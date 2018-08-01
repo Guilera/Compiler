@@ -46,6 +46,9 @@ add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _println
+# saveCome = 1
+_end_function_main:
+addiu $sp $sp 0
 lw $ra 4($sp)
 addiu $sp $sp 8
 li $v0 10

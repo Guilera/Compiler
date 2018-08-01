@@ -132,13 +132,49 @@ addiu $sp $sp -4
 jal _println
 sw $fp 0($sp)
 addiu $sp $sp -4
+li $a0 3
+sw $a0 0($sp)
+addiu $sp $sp -4
+li $a0 20
+sw $a0 0($sp)
+addiu $sp $sp -4
 li $a0 1
 sw $a0 0($sp)
 addiu $sp $sp -4
-li $a0 0
+li $a0 6
 lw $t0 4($sp)
 addiu $sp $sp 4
-blt $t0 $a0 
+sub $a0  $t0  $a0
+lw $t0 4($sp)
+addiu $sp $sp 4
+add $a0  $t0  $a0
+sw $a0 0($sp)
+addiu $sp $sp -4
+li $a0 2
+sw $a0 0($sp)
+addiu $sp $sp -4
+li $a0 2
+lw $t0 4($sp)
+addiu $sp $sp 4
+add $a0  $t0  $a0
+sw $a0 0($sp)
+addiu $sp $sp -4
+li $a0 0
+sw $a0 0($sp)
+addiu $sp $sp -4
+li $a0 1
+lw $t0 4($sp)
+addiu $sp $sp 4
+sub $a0  $t0  $a0
+lw $t0 4($sp)
+addiu $sp $sp 4
+mul $a0  $t0  $a0
+lw $t0 4($sp)
+addiu $sp $sp 4
+add $a0  $t0  $a0
+lw $t0 4($sp)
+addiu $sp $sp 4
+mul $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _println
@@ -196,6 +232,9 @@ add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _println
+# saveCome = 1
+_end_function_main:
+addiu $sp $sp 0
 lw $ra 4($sp)
 addiu $sp $sp 8
 li $v0 10

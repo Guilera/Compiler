@@ -34,7 +34,7 @@ _fat:
 move  $fp  $sp
 sw $ra 0($sp)
 addiu $sp $sp -4
-#id = n
+# id = n
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -46,14 +46,16 @@ _false_branch_0:
 j _end_if_0
 _true_branch_0:
 li $a0 1
+j _end_function_fat
+# saveCome = 0
 _end_if_0:
-#id = n
+# id = n
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
 sw $fp 0($sp)
 addiu $sp $sp -4
-#id = n
+# id = n
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -67,8 +69,12 @@ jal _fat
 lw $t0 4($sp)
 addiu $sp $sp 4
 mul $a0  $t0  $a0
+j _end_function_fat
+# saveCome = 1
+_end_function_fat:
+addiu $sp $sp 0
 lw $ra 4($sp)
-addiu $sp $sp 12
+addiu $sp $sp 8
 # n removed
 addiu $sp $sp 4
 lw  $fp  0($sp)
@@ -87,7 +93,7 @@ addiu $sp $sp -4
 jal _fat
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = x
+# id = x
 addiu $a0 $fp -4
 lw $t0 4($sp)
 addiu $sp $sp 4
@@ -95,12 +101,14 @@ sw $t0 0($a0)
 addiu $a0 $t0 0
 sw $fp 0($sp)
 addiu $sp $sp -4
-#id = x
+# id = x
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _println
+# saveCome = 1
 # x removed
+_end_function_main:
 addiu $sp $sp 4
 lw $ra 4($sp)
 addiu $sp $sp 8

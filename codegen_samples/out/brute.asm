@@ -36,11 +36,11 @@ sw $ra 0($sp)
 addiu $sp $sp -4
 addiu $sp $sp -4
 addiu $sp $sp -4
-#id = len
+# id = len
 lw $a0 8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = n
+# id = n
 la $a0 n
 lw $a0 0($a0)
 lw $t0 4($sp)
@@ -50,12 +50,14 @@ _false_branch_0:
 j _end_if_0
 _true_branch_0:
 li $a0 1
+j _end_function_brute
+# saveCome = 0
 _end_if_0:
-#id = last
+# id = last
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = K
+# id = K
 la $a0 K
 lw $a0 0($a0)
 lw $t0 4($sp)
@@ -63,22 +65,22 @@ addiu $sp $sp 4
 sub $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = i
+# id = i
 addiu $a0 $fp -4
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
 _while_0:
-#id = i
+# id = i
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = last
+# id = last
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = K
+# id = K
 la $a0 K
 lw $a0 0($a0)
 lw $t0 4($sp)
@@ -89,11 +91,11 @@ addiu $sp $sp 4
 ble $t0 $a0 _start_while_0
 j _end_while_0
 _start_while_0:
-#id = i
+# id = i
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = lo
+# id = lo
 la $a0 lo
 lw $a0 0($a0)
 lw $t0 4($sp)
@@ -102,11 +104,11 @@ bge $t0 $a0 _true_branch_1
 _false_branch_1:
 j _end_if_1
 _true_branch_1:
-#id = i
+# id = i
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = hi
+# id = hi
 la $a0 hi
 lw $a0 0($a0)
 lw $t0 4($sp)
@@ -115,13 +117,13 @@ ble $t0 $a0 _true_branch_2
 _false_branch_2:
 j _end_if_2
 _true_branch_2:
-#id = res
+# id = res
 lw $a0 -8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
 sw $fp 0($sp)
 addiu $sp $sp -4
-#id = len
+# id = len
 lw $a0 8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -131,7 +133,7 @@ addiu $sp $sp 4
 add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = i
+# id = i
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -141,15 +143,17 @@ addiu $sp $sp 4
 add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = res
+# id = res
 addiu $a0 $fp -8
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
+# saveCome = 0
 _end_if_2:
+# saveCome = 0
 _end_if_1:
-#id = i
+# id = i
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -159,22 +163,25 @@ addiu $sp $sp 4
 add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = i
+# id = i
 addiu $a0 $fp -4
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
+# saveCome = 0
 j _while_0
 _end_while_0:
-#id = res
+# id = res
 lw $a0 -8($fp) 
+j _end_function_brute
+# saveCome = 1
 # res removed
-addiu $sp $sp 4
 # i removed
-addiu $sp $sp 4
+_end_function_brute:
+addiu $sp $sp 8
 lw $ra 4($sp)
-addiu $sp $sp 16
+addiu $sp $sp 8
 # len removed
 addiu $sp $sp 4
 # last removed
@@ -188,63 +195,63 @@ sw $ra 0($sp)
 addiu $sp $sp -4
 addiu $sp $sp -4
 addiu $sp $sp -4
-#id = a
+# id = a
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = n
+# id = n
 la $a0 n
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
-#id = b
+# id = b
 lw $a0 8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = K
+# id = K
 la $a0 K
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
-#id = c
+# id = c
 lw $a0 12($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = lo
+# id = lo
 la $a0 lo
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
-#id = d
+# id = d
 lw $a0 16($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = hi
+# id = hi
 la $a0 hi
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
-#id = lo
+# id = lo
 la $a0 lo
 lw $a0 0($a0)
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = i
+# id = i
 addiu $a0 $fp -8
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
 _while_1:
-#id = i
+# id = i
 lw $a0 -8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = hi
+# id = hi
 la $a0 hi
 lw $a0 0($a0)
 lw $t0 4($sp)
@@ -252,7 +259,7 @@ addiu $sp $sp 4
 ble $t0 $a0 _start_while_1
 j _end_while_1
 _start_while_1:
-#id = res
+# id = res
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -261,7 +268,7 @@ addiu $sp $sp -4
 li $a0 1
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = i
+# id = i
 lw $a0 -8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -271,13 +278,13 @@ addiu $sp $sp 4
 add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = res
+# id = res
 addiu $a0 $fp -4
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
-#id = i
+# id = i
 lw $a0 -8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -287,27 +294,29 @@ addiu $sp $sp 4
 add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
-#id = i
+# id = i
 addiu $a0 $fp -8
 lw $t0 4($sp)
 addiu $sp $sp 4
 sw $t0 0($a0)
 addiu $a0 $t0 0
+# saveCome = 0
 j _while_1
 _end_while_1:
 sw $fp 0($sp)
 addiu $sp $sp -4
-#id = res
+# id = res
 lw $a0 -4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _println
+# saveCome = 1
 # i removed
-addiu $sp $sp 4
 # res removed
-addiu $sp $sp 4
+_end_function_solve:
+addiu $sp $sp 8
 lw $ra 4($sp)
-addiu $sp $sp 24
+addiu $sp $sp 8
 # d removed
 addiu $sp $sp 4
 # c removed
@@ -383,6 +392,9 @@ li $a0 2
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _solve
+# saveCome = 1
+_end_function_main:
+addiu $sp $sp 0
 lw $ra 4($sp)
 addiu $sp $sp 8
 li $v0 10
