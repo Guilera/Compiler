@@ -531,6 +531,8 @@ void Variable::codegen(std::ostream &os) {
 	if(expression) {
 		// se é um vetor, entao avalia-se o offset
 		isIntCGen = true;
+
+		// push endereço do array
 		PUSH(ACC, os);
 		bool saveAssign = isAssignCGen, saveArg = isArgCGen;
 		isAssignCGen = false; 
