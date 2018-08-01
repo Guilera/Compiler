@@ -63,40 +63,34 @@ struct variable {
 
 std::vector<variable> localDec; // id of variables as local of current function and its size
 std::vector<variable> paramDec; // id of variables as parameter of current function and its size 
-std::vector<std::vector<std::string> > func;
-std::list<ss> scope;
+std::vector<std::vector<std::string> > funcCGen;
+std::list<ss> scopeCGen;
 std::string nextBranch;
 std::vector<variable> globalVar;
-bool isValid = true;
-bool isArg = false;
-bool isOp = false;
-bool next = false;
-bool isVoid;
-bool isInt = true;
-bool isAssign = false;
-bool cameFromFunc = false;
-int funcID = -1, ind;
+bool isArgCGen = false;
+bool isOpCGen = false;
+bool nextCGen = false;
+bool isVoidCGen;
+bool isIntCGen = true;
+bool isAssignCGen = false;
+bool cameFromFuncCGen = false;
+int funcIDCGen = -1, indCGen;
 int if_counter = 0;
 int while_counter = 0;
-int contaSizeLocalDec = 0;
+int SizeLocalDec_counter = 0;
 
 //-----------------------------------------------------------------------------------
 
-void createScope(bool isArgument);
-void exitScope(std::ostream &os, bool cameFromF);
-bool isInThisScope(std::string x);
-bool isScopeGlobal();
-void addVar(std::string x, std::string type);
-std::string isDeclared(std::string x);
-int idOfFunction(std::string x);
-void printfunc(std::string x) {
-	if(DEBUG)
-		std::cout << "in function " << x << std::endl;
-}
-std::string getType(int id);
-int indexFromFpParam(int funcID, std::string var);
-int indexFromFpLocal(std::string var);
-bool isVarGlobal(std::string id);
+void createScopeCGen(bool isArgument);
+void exitScopeCGen(std::ostream &os, bool cameFromF);
+bool isInThisScopeCGen(std::string x);
+bool isScopeGlobalCGen();
+void addVarCGen(std::string x, std::string type);
+std::string isDeclaredCGen(std::string x);
+int idOfFunctionCGen(std::string x);
+std::string getTypeCGen(int id);
+int indexFromFpParamCGen(int funcIDCGen, std::string var);
+int indexFromFpLocalCGen(std::string var);
 
 //-----------------------------------------------------------------------------------
 
@@ -107,7 +101,7 @@ void Program::codegen(std::ostream &os) {
 	os << ".text" << std::endl << std::endl;
 	
 	// inicia escopo global
-	createScope(false);
+	createScopeCGen(false);
 
 	// inicia o programa e chama a função main
 	os << "main: " << std::endl;
@@ -119,7 +113,7 @@ void Program::codegen(std::ostream &os) {
 
   	/*** IMPLEMENTAÇÃO DA FUNÇÃO INPUT ***/
   	// adiciona na lista de funções
-  	func.emplace_back(std::initializer_list<std::string>{"int", "input", "void"});
+  	funcCGen.emplace_back(std::initializer_list<std::string>{"int", "input", "void"});
   
   	// define o label
   	os << "_input:" << std::endl;
@@ -150,7 +144,7 @@ void Program::codegen(std::ostream &os) {
 
   	/*** IMPLEMENTAÇÃO DA FUNÇÃO PRINTLN ***/
   	// adiciona na lista de funções
-  	func.emplace_back(std::initializer_list<std::string>{"void", "println", "int"});
+  	funcCGen.emplace_back(std::initializer_list<std::string>{"void", "println", "int"});
 
   	// define o label
   	os << "_println:" << std::endl;
@@ -190,7 +184,7 @@ void Program::codegen(std::ostream &os) {
   	}
   
   	// finaliza escopo global
-  	exitScope(os,0);
+  	exitScopeCGen(os,0);
 
   	// aloca todas as variaveis globais	
   	os << std::endl << ".data" << std::endl;
@@ -202,18 +196,18 @@ void Program::codegen(std::ostream &os) {
 void VariableDeclaration::codegen(std::ostream &os) {
 	
 	// se não pertencer a esse escopo, significa que não foi declarada, então declara
-	if(!isInThisScope(id)) {
+	if(!isInThisScopeCGen(id)) {
 		std::string tipo = (type == INT) ? "int" : "void";
 
 		// se num for diferente de zero, significa que a variavel é um array de tamanho igual 'num', caso contrário é um inteiro
 		int allocation_size = num ? num : 1;
 
 		// adiciona a variavel no escopo atual
-		addVar(id,tipo);
+		addVarCGen(id,tipo);
 
 		// se o escopo for local reserva espaço na pilha,
 		// caso contrário o tamanho será reservado no '.data'
-		if(!isScopeGlobal()) {
+		if(!isScopeGlobalCGen()) {
 			localDec.emplace_back(id, allocation_size);
 			os << "addiu $sp $sp -" << allocation_size * 4 << std::endl;
 		} else {
@@ -226,7 +220,7 @@ void VariableDeclaration::codegen(std::ostream &os) {
 void Param::codegen(std::ostream &os) {
 	
 	// se não pertencer a esse escopo então adiciona
-	if(!isInThisScope(id)) {
+	if(!isInThisScopeCGen(id)) {
 		std::string tipo;
 		if(type == INT) {
 			tipo = is_array ? "array" : "int";
@@ -234,18 +228,18 @@ void Param::codegen(std::ostream &os) {
 		} else if(type == VOID) {
 			tipo = "void";
 		}
-		addVar(id,tipo);
+		addVarCGen(id,tipo);
 	}
 }
 
 void CompoundStatement::codegen(std::ostream &os) {
 
-	createScope(next);
-	next = false;
+	createScopeCGen(nextCGen);
+	nextCGen = false;
 
 	// flag de aninhamento: guarda a informação se este compound está aninhado ou não
-	bool saveCome = cameFromFunc;
-	cameFromFunc = false;
+	bool saveCome = cameFromFuncCGen;
+	cameFromFuncCGen = false;
 
 	// codegen de todas as declarações de variaveis locais
 	for(auto local_dec : local_declarations)
@@ -256,13 +250,13 @@ void CompoundStatement::codegen(std::ostream &os) {
 		stmt->codegen(os);
 
 	// reseta a flag de aninhamento original
-	cameFromFunc = saveCome;
+	cameFromFuncCGen = saveCome;
 
 	// zera o contador de declarações locais pendentes
-	contaSizeLocalDec = 0;
+	SizeLocalDec_counter = 0;
 
 	// finaliza escopo passando a flag de aninhamento
-	exitScope(os, saveCome);
+	exitScopeCGen(os, saveCome);
 }
 
 void FunctionDeclaration::codegen(std::ostream &os) {
@@ -277,60 +271,60 @@ void FunctionDeclaration::codegen(std::ostream &os) {
 	PUSH(RA, os);
 
 	// inicia escopo da função
-	createScope(false);
-	next = true;
+	createScopeCGen(false);
+	nextCGen = true;
 
 	/*** adiciona na lista de funções ***/
-	func.push_back(std::vector<std::string>());
+	funcCGen.push_back(std::vector<std::string>());
 
 	// define o tipo de retorno
 	if (type == INT) {
-		func.back().push_back("int");
-		isVoid = false;
+		funcCGen.back().push_back("int");
+		isVoidCGen = false;
 	} else if (type == VOID) {
-		func.back().push_back("void");
-		isVoid = true;
+		funcCGen.back().push_back("void");
+		isVoidCGen = true;
 	}
 
 	// define o seu nome
-	func.back().push_back(id);
+	funcCGen.back().push_back(id);
 
 	// define o tipo de cada parametro
 	if(param_list.size() == 0)
-		func.back().push_back("void");
+		funcCGen.back().push_back("void");
 
 	for(auto param : param_list) {
 		if(param->is_array)
-			func.back().push_back("array");
+			funcCGen.back().push_back("array");
 		else if(param->type == VOID)
-			func.back().push_back("void");
+			funcCGen.back().push_back("void");
 		else
-			func.back().push_back("int");
+			funcCGen.back().push_back("int");
 
 		// codegen de cada parametro
 		param->codegen(os);
 	}
 
 	// define flag de aninhamento
-	cameFromFunc = true;
+	cameFromFuncCGen = true;
 
 	// codegen do código da função
 	compound_stmt->codegen(os);  
-	cameFromFunc = false;
+	cameFromFuncCGen = false;
 
 	// label de finalização da função
 	os << "_end_function_" << id << ':' << std::endl;
 
 	// pop variaveis locais
-	nPOP(contaSizeLocalDec, os);
+	nPOP(SizeLocalDec_counter, os);
 	
 	// pop return address
 	TOP(RA, os);
 	POP(os);
 
 	// reseta contador de declarações locais e finaliza o escopo da função
-	contaSizeLocalDec = 0;
-	exitScope(os,false);
+	SizeLocalDec_counter = 0;
+	exitScopeCGen(os,false);
 
 	// pop frame pointer
 	TOP(FP, os);
@@ -343,9 +337,9 @@ void FunctionDeclaration::codegen(std::ostream &os) {
 void Selection::codegen(std::ostream &os) {
 	
 	// cria escopo do if
-	createScope(false);
+	createScopeCGen(false);
 
-	isInt = true;
+	isIntCGen = true;
 
 	// pega o valor do contador de if's 
 	int current_if = if_counter++;
@@ -374,20 +368,20 @@ void Selection::codegen(std::ostream &os) {
 	os << "_end_if_" << current_if << ':' << std::endl;
 	
 	// finaliza o escopo da função
-	exitScope(os,false);
+	exitScopeCGen(os,false);
 }
 
 void Iteration::codegen(std::ostream &os) {
 	
 	// cria escopo para o while
-	createScope(false);
+	createScopeCGen(false);
 	
 	// pega o valor do contador de while's
 	int current_while = while_counter++;
 
 	// label de inicialização do while
 	os << "_begin_while_" << current_while << ":" << std::endl;
-	isInt = true;
+	isIntCGen = true;
 
 	// codegen da expressão do while. O resultado da expressão estará no acumulador
 	expression->codegen(os);
@@ -408,27 +402,27 @@ void Iteration::codegen(std::ostream &os) {
 	os << "_end_while_" << current_while << ':' << std::endl;
 
 	// finaliza o escopo do while
-	exitScope(os,false);
+	exitScopeCGen(os,false);
 } 
 
 void Return::codegen(std::ostream &os) {
 	if(expression) {
-		isInt = true;
+		isIntCGen = true;
 		expression->codegen(os);
 	}
 
 	// jump para o label da ultima função adiconada na lista de funções
-	os << "j _end_function_" << func.back()[1] << std::endl;
+	os << "j _end_function_" << funcCGen.back()[1] << std::endl;
 } 
 
 void Variable::codegen(std::ostream &os) {
 
-	std::string aux = isDeclared(id);
+	std::string aux = isDeclaredCGen(id);
 	bool globalScope = false;
 
-	if(!isAssign && !isArg) {
+	if(!isAssignCGen && !isArgCGen) {
 		// pega o indice do parametro em ao relação frame pointer
-		int parameter_index = indexFromFpParam(func.size() - 1, id);
+		int parameter_index = indexFromFpParamCGen(funcCGen.size() - 1, id);
 		
 		// verifica se é um index válido
 		if(parameter_index != -1){
@@ -441,47 +435,51 @@ void Variable::codegen(std::ostream &os) {
 				os << "addiu $a0 $fp " << parameter_index << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
 			}
-		} else if(indexFromFpLocal(id) != -1) {
+		} else if(indexFromFpLocalCGen(id) != -1) {
 			if(!expression) {
-				os << "lw $a0 " << indexFromFpLocal(id) << "($fp) " << std::endl;
+				os << "lw $a0 " << indexFromFpLocalCGen(id) << "($fp) " << std::endl;
 				}
 				else if(expression) {
-				os << "addiu $a0 $fp" << indexFromFpLocal(id) << std::endl;
+				os << "addiu $a0 $fp" << indexFromFpLocalCGen(id) << std::endl;
 				}
 		}  else {
 			// pertence ao escopo global
 			globalScope = true;
 
 		if(!expression) {
+			// se for um vetor global sem offset entao carrega o seu endereço
 			os << "la $a0 " << id << std::endl;
 			os << "lw $a0 0($a0)" << std::endl;
 		} else {
+			// se for um vetor global entao carrega o seu endereço
 			os << "la $a0 " << id << std::endl;
 		}
 		}
 
-	} else if(isArg) {
+	} else if(isArgCGen) {
 
-		if(indexFromFpParam(func.size()-1, id) != -1){
+		if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
 
 			if(aux == "int"){
-				os << "lw $a0 " << indexFromFpParam(func.size()-1, id) << "($fp) "  << std::endl;
+				// se for argumento e estiver nos parametros e for do tipo int entao carrega o valor presente nos parametros
+				os << "lw $a0 " << indexFromFpParamCGen(funcCGen.size()-1, id) << "($fp) "  << std::endl;
 			}
 			else if(aux == "array") {
-
-				os << "addiu $a0 $fp " << indexFromFpParam(func.size()-1, id) << std::endl;
+				// se for argumento e for do tipo array entao o valor correspodente lá sera o endereço e deve-se carregar ele e avaliá-lo depois
+				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
 				if(!expression) {
-				PUSH(ACC, os);       
+					// se foi chamado o ponteiro, então 
+					PUSH(ACC, os);       
 				}
 			}
 
-		} else if(indexFromFpLocal(id) != -1) {
+		} else if(indexFromFpLocalCGen(id) != -1) {
 
 			if(aux == "int")
-				os << "lw $a0 " << indexFromFpLocal(id) << "($fp) " << std::endl;
+				os << "lw $a0 " << indexFromFpLocalCGen(id) << "($fp) " << std::endl;
 			else if(aux == "array")				
-				os << "addiu $a0 $fp " << indexFromFpLocal(id) << std::endl;
+				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
 
 		} else {
 			// global scope
@@ -494,22 +492,22 @@ void Variable::codegen(std::ostream &os) {
 			}
 		}
 
-	} else if (isAssign) {
+	} else if (isAssignCGen) {
 
-		if(indexFromFpParam(func.size()-1, id) != -1){
+		if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
 
 			if(!expression){
-				os << "addiu $a0 " << "$fp " << indexFromFpParam(func.size()-1, id) << std::endl;
+				os << "addiu $a0 " << "$fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 			}
 			else if(expression) {
-				os << "addiu $a0 $fp " << indexFromFpParam(func.size()-1, id) << std::endl;
+				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
 			}
-		} else if(indexFromFpLocal(id) != -1) {
+		} else if(indexFromFpLocalCGen(id) != -1) {
 			if(!expression)
-				os << "addiu $a0 " << "$fp " << indexFromFpLocal(id) << std::endl;
+				os << "addiu $a0 " << "$fp " << indexFromFpLocalCGen(id) << std::endl;
 			else
-				os << "addiu $a0 $fp " << indexFromFpLocal(id) << std::endl;
+				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
 		} else {
 			// global scope
 			globalScope = true;
@@ -521,26 +519,26 @@ void Variable::codegen(std::ostream &os) {
 		
 	}
 
-	if(funcID != -1 && !isOp) {
+	if(funcIDCGen != -1 && !isOpCGen) {
 		if(aux == "array" && expression)
 			aux = "int";
 	}
 	
-	aux = isDeclared(id);
-	int saveID = funcID;
+	aux = isDeclaredCGen(id);
+	int saveID = funcIDCGen;
 	if(aux == "array")  {
-		funcID = -1;
+		funcIDCGen = -1;
 	}
 
 	if(expression) {
-		isInt = true;
+		isIntCGen = true;
 		PUSH(ACC, os);
-		bool saveAss = isAssign, saveArg = isArg;
-		isAssign = false; 
-		isArg = false;
+		bool saveAss = isAssignCGen, saveArg = isArgCGen;
+		isAssignCGen = false; 
+		isArgCGen = false;
 		expression->codegen(os);
-		isAssign = saveAss; 
-		isArg = saveArg;
+		isAssignCGen = saveAss; 
+		isArgCGen = saveArg;
 		
 		if(globalScope)
 			LOAD_IMMEDIATE(TEMP, 4, os);
@@ -551,12 +549,12 @@ void Variable::codegen(std::ostream &os) {
 		TOP(TEMP, os);
 		POP(os);
 		os << "add $a0 $a0 $t0" << std::endl;
-		if(!isAssign) {
+		if(!isAssignCGen) {
 		os << "lw $a0 0($a0)" << std::endl;
 		}
 	}
 
-	funcID = saveID;
+	funcIDCGen = saveID;
 
 }
 
@@ -569,13 +567,13 @@ void Assign::codegen(std::ostream &os) {
 	PUSH(ACC, os);
 
 	// seta flag de assignment
-	isAssign = true;
+	isAssignCGen = true;
 	
 	// codegen da variavel
 	var->codegen(os);
 
 	// reseta flag
-	isAssign = false;
+	isAssignCGen = false;
 
 	// pop valor da expressão para temp
 	TOP(TEMP, os);
@@ -585,35 +583,35 @@ void Assign::codegen(std::ostream &os) {
 	os << "sw $t0 0($a0)" << std::endl;
 	os << "addiu $a0 $t0 0" << std::endl;
 
-	isInt = true;
+	isIntCGen = true;
 } 
 
 void FunctionCall::codegen(std::ostream &os) {
 
-	funcID = idOfFunction(id);
+	funcIDCGen = idOfFunctionCGen(id);
 
-	if(getType(funcID) == "void") {
-		isInt = false;
+	if(getTypeCGen(funcIDCGen) == "void") {
+		isIntCGen = false;
 	}
 
 	// push frame pointer
 	PUSH(FP, os);
 
 	// TODO: explicar
-	ind = 2;
-	int sz = (func[funcID].size()-2 == 1 && func[funcID][2] == "void" ? 0 : func[funcID].size()-2);
+	indCGen = 2;
+	int sz = (funcCGen[funcIDCGen].size()-2 == 1 && funcCGen[funcIDCGen][2] == "void" ? 0 : funcCGen[funcIDCGen].size()-2);
 	if(args.size() != sz) {
-		funcID = -1;
+		funcIDCGen = -1;
 		return;
 	}
 
 	// flags
-	int oldIsInt = isInt;
-	isArg = true;
+	int oldIsInt = isIntCGen;
+	isArgCGen = true;
 
 	// push argumentos
 	for(auto it = args.rbegin(); it != args.rend(); it++) {
-		isInt = true;
+		isIntCGen = true;
 		(*it)->codegen(os);
 		PUSH(ACC, os);
 	}
@@ -622,9 +620,9 @@ void FunctionCall::codegen(std::ostream &os) {
 	os << "jal _" << id << std::endl;
 	
 	// flags
-	isArg = false;
-	isInt = oldIsInt;
-	funcID = -1;
+	isArgCGen = false;
+	isIntCGen = oldIsInt;
+	funcIDCGen = -1;
 } 
 
 void BinaryOperation::codegen(std::ostream &os) {
@@ -636,8 +634,8 @@ void BinaryOperation::codegen(std::ostream &os) {
 	mapa["/"] = "div"; 
 
 	// flags
-	isOp = true;
-	isInt = true;
+	isOpCGen = true;
+	isIntCGen = true;
 
 	// codegen do lhs
 	lhs->codegen(os);
@@ -646,8 +644,8 @@ void BinaryOperation::codegen(std::ostream &os) {
 	PUSH(ACC, os);
 	
 	// flags
-	isOp = true;
-	isInt = true;
+	isOpCGen = true;
+	isIntCGen = true;
 
 	// codegen rhs (resultado no acumulador)
 	rhs->codegen(os);
@@ -691,7 +689,7 @@ void BinaryOperation::codegen(std::ostream &os) {
 			os << "sltu $a0 $0 $a0" << std::endl;
 		}
 	}
-  isOp = false;
+  isOpCGen = false;
 } 
 
 void Number::codegen(std::ostream &os) {
@@ -702,21 +700,21 @@ void Number::codegen(std::ostream &os) {
 // ---------------------------------------------------------------------------------------
 
 
-void createScope(bool isArgument) {
-	scope.push_back(ss("$","$",isArgument));
+void createScopeCGen(bool isArgument) {
+	scopeCGen.push_back(ss("$","$",isArgument));
 }
 
-void exitScope(std::ostream &os, bool cameFromF) {
+void exitScopeCGen(std::ostream &os, bool cameFromF) {
 
-	if(scope.size() == 0)
+	if(scopeCGen.size() == 0)
 	return;
 
-	auto it = scope.end();
+	auto it = scopeCGen.end();
 	it--;
 	while(it->id != "$") {
 		os << "# " << it->id << " removed" << std::endl;
 		std::string toDelete = it->id;
-		it = scope.erase(it);
+		it = scopeCGen.erase(it);
 		it--;
 		
 		bool f = true;
@@ -726,7 +724,7 @@ void exitScope(std::ostream &os, bool cameFromF) {
 			if(!cameFromF)
 				os << "addiu $sp $sp " << (*iterator).size*4 << std::endl;
 			else 
-				contaSizeLocalDec += (*iterator).size; 
+				SizeLocalDec_counter += (*iterator).size; 
 				localDec.erase(iterator);
 				break;
 			}
@@ -740,12 +738,12 @@ void exitScope(std::ostream &os, bool cameFromF) {
 			}
 		}
 	}
-	scope.erase(it);
+	scopeCGen.erase(it);
 
 }
 
-bool isInThisScope(std::string x) {
-	auto it = scope.rbegin();
+bool isInThisScopeCGen(std::string x) {
+	auto it = scopeCGen.rbegin();
 
 	while(it->id != "$" || it->isArgument == true) {
 		if(it->id == x)
@@ -755,44 +753,44 @@ bool isInThisScope(std::string x) {
 	return false;
 }
 
-bool isScopeGlobal() {
+bool isScopeGlobalCGen() {
 	int c = 0;
-	for(auto it: scope) {
+	for(auto it: scopeCGen) {
 	if(it.id == "$")
 		c++;
 	}
 	return (c==1);
 }
 
-void addVar(std::string x, std::string type) {
-	scope.push_back(ss(x,type, false));
+void addVarCGen(std::string x, std::string type) {
+	scopeCGen.push_back(ss(x,type, false));
 }
 
-std::string isDeclared(std::string x) {
-	for(auto it = scope.rbegin(); it != scope.rend(); it++) {
+std::string isDeclaredCGen(std::string x) {
+	for(auto it = scopeCGen.rbegin(); it != scopeCGen.rend(); it++) {
 		if(it->id == x)
 			return it->typeOfV;
 	}
 	return "";
 }
 
-int idOfFunction(std::string x) {
-	for(int i = 0; i < func.size(); i++) {
-	if(func[i][1] == x) {
+int idOfFunctionCGen(std::string x) {
+	for(int i = 0; i < funcCGen.size(); i++) {
+	if(funcCGen[i][1] == x) {
 		return i;
 	}
 	}
 	return -1;
 }
 
-std::string getType(int id) {
-	if(func[id][0] == "void") {
+std::string getTypeCGen(int id) {
+	if(funcCGen[id][0] == "void") {
 		return "void";
 	}
 	return "int";
 }
 
-int indexFromFpParam(int lastFunc, std::string variable_name) {
+int indexFromFpParamCGen(int lastFunc, std::string variable_name) {
 	int count = 4;
 	for(auto param : paramDec) {
 		if(param.name == variable_name)
@@ -803,7 +801,7 @@ int indexFromFpParam(int lastFunc, std::string variable_name) {
 	return -1;  
 }
 
-int indexFromFpLocal(std::string var) {
+int indexFromFpLocalCGen(std::string var) {
 
 	int count = 4;
 	for(auto local : localDec) {
@@ -817,12 +815,4 @@ int indexFromFpLocal(std::string var) {
 	}
 
 	return -1;
-}
-
-bool isVarGlobal(std::string id) {
-	for(variable x: globalVar) {
-		if(x.name == id)
-			return true;
-	}
-	return false;
 }

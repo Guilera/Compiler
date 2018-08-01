@@ -42,9 +42,6 @@ bool isScopeGlobal();
 void addVar(std::string x, std::string type);
 std::string isDeclared(std::string x);
 int idOfFunction(std::string x);
-void printfunc(std::string x) {
-	std::cout << "in function " << x << std::endl;
-}
 std::string getType(int id);
 
 //-----------------------------------------------------------------------------------
@@ -52,7 +49,6 @@ std::string getType(int id);
 void Node::semantic() {}
 
 void Program::semantic() {
-	//printfunc("Program");
   func.push_back(std::vector<std::string>());
   func.push_back(std::vector<std::string>());
   func[0].push_back("int");
@@ -63,22 +59,20 @@ void Program::semantic() {
   func[1].push_back("int");
   createScope(false);
 
-  std::cout << "Scope Created in Program" << std::endl;
   for(auto dec: declaration_list) {
     dec->semantic();
   }
   exitScope();
   if(func.back().size() != 3 || func.back()[1] != "main" || func.back()[2] != "void" || !isVoid) {
-  	std::cout << "error in declaration of function main" << std::endl;
+  	std::cout << "Error in declaration of function main" << std::endl;
   	exit(0);
   }
 }
 
 void VariableDeclaration::semantic() {
 
-	//printfunc("VariableDeclaration");
   if(idOfFunction(id) != -1 && isScopeGlobal()) {
-    std::cout << "id " << id << " was already decleared as a function" << std::endl;  
+    std::cout << "Id " << id << " was already decleared as a function" << std::endl;  
     exit(0);  
   } 
 	
@@ -92,11 +86,10 @@ void VariableDeclaration::semantic() {
       tipo = "void";
 
     if(isScopeGlobal() && type == VOID) {
-      std::cout << "wrong void declaration globally" << std::endl;
+      std::cout << "Wrong void declaration globally" << std::endl;
       exit(0);
     }
     addVar(id,tipo);
-    std::cout << id << " added" << " type " << tipo << std::endl;
   } else {
     std::cout << "Two variables with the same id in the same scope: " << id << std::endl;
     exit(0);
@@ -104,7 +97,7 @@ void VariableDeclaration::semantic() {
 }
 
 void Param::semantic() {
-	//printfunc("Param");
+
   if(!isInThisScope(id)) {
     std::string tipo;
     if(type == INT)
@@ -114,23 +107,20 @@ void Param::semantic() {
     if(type == VOID)
       tipo = "void";
     addVar(id,tipo);
-    std::cout << id << " added" << " which type is " << tipo << std::endl;
   } else {
-    std::cout << "Two variables with the same id in the same scope" << id << std::endl;
+    std::cout << "Two variables with the same id in the same scope: " << id << std::endl;
     exit(0);
   }
 }
 
 void CompoundStatement::semantic() {
 
-	//printfunc("CompoundStatement");
 	createScope(next);
   next = false;
-	std::cout << "Scope Created in CompoundStatement" << std::endl;
 
   for(auto local_dec : local_declarations) {
     if(local_dec->type == VOID) {
-      std::cout << "wrong void declaration inside function" << std::endl;
+      std::cout << "Wrong void declaration inside function" << std::endl;
       exit(0);
     }
     local_dec->semantic();
@@ -143,19 +133,18 @@ void CompoundStatement::semantic() {
 }
 
 void FunctionDeclaration::semantic() {
-	//printfunc("FunctionDeclaration");
+
   if(idOfFunction(id) != -1) {
-  	std::cout << "function " << id << " was already decleared" << std::endl;
+  	std::cout << "Function " << id << " was already decleared" << std::endl;
   	exit(0);
   }
 
   if(isDeclared(id) != "") {
-  	std::cout << "id " << id << " was already decleared as a var" << std::endl;
+  	std::cout << "Id " << id << " was already decleared as a var" << std::endl;
   	exit(0);
   }
   createScope(false);
   next = true;
-  std::cout << "Scope Created in Function " << id << std::endl;
 
   func.push_back(std::vector<std::string>());
   if (type == INT) {
@@ -174,7 +163,7 @@ void FunctionDeclaration::semantic() {
   }
   for(auto param : param_list) {
     if(param->type == VOID && (param->id > "&" || param_list.size() > 1)) {
-      std::cout << "wrong void declaraion in parameter" << std::endl;
+      std::cout << "Wrong void declaraion in parameter" << std::endl;
       exit(0);
     }
     if(param->is_array) {
@@ -190,19 +179,17 @@ void FunctionDeclaration::semantic() {
   
   compound_stmt->semantic();  
   
-  std::cout << "Exit Scope in Function " << id << std::endl;
   exitScope();
 }
 
 void Selection::semantic() {
-	//printfunc("Selection");
+
 	createScope(false);
-	std::cout << "Scope Created in Selection" << std::endl;
 
   isInt = true;
   expression->semantic();
   if(!isInt) {
-  	std::cout << "is not an int expression" << std::endl;
+  	std::cout << "Is not an int expression" << std::endl;
   	exit(0);
   }
   if_stmt->semantic();
@@ -213,13 +200,12 @@ void Selection::semantic() {
 }
 
 void Iteration::semantic() {
-	//printfunc("Iteration");
+
 	createScope(false);
-	std::cout << "Scope Created in if statement" << std::endl;
   isInt = true;
   expression->semantic();
   if(!isInt) {
-  	std::cout << "is not an int expression" << std::endl;
+  	std::cout << "Is not an int expression" << std::endl;
   	exit(0);
   }
   statement->semantic();
@@ -227,53 +213,47 @@ void Iteration::semantic() {
 } 
 
 void Return::semantic() {
-	//printfunc("Return");
-  //std::cout << isVoid << ' ' << (expression ? 1: 0) << std::endl;
+
   if(isVoid && expression) {
-    std::cout << "error found in function return " << std::endl;
+    std::cout << "Error found in function return " << std::endl;
     exit(0);
   } else if(!isVoid && !expression) {
-    std::cout << "error found in function return " << std::endl;
+    std::cout << "Error found in function return " << std::endl;
     exit(0);
   }
   if(expression) {
     isInt = true;
 	  expression->semantic();
 	  if(!isInt) {
-	  	std::cout << "is not an int expression" << std::endl;
+	  	std::cout << "Is not an int expression" << std::endl;
 	  	exit(0);
 	  }
   }
 } 
 
 void Variable::semantic() {
-	//printfunc("Variable");
 
   std::string aux = isDeclared(id);
   if(aux == "") {
-    std::cout << "variable " << id << " wasnt declared" << std::endl;
+    std::cout << "Variable " << id << " wasnt declared" << std::endl;
     exit(0);
   }  
 
   if(expression && aux == "int") {
-    std::cout << "int declared as array" << std::endl;
+    std::cout << "Int declared as array" << std::endl;
     exit(0);
   }
 
-  //debug(id);
   if(!expression && aux == "array" && !isArg) {
-    std::cout << "array without index " << std::endl;
+    std::cout << "Array without index " << std::endl;
     exit(0);
   }
 
   if(funcID != -1 && !isOp) {
   	if(aux == "array" && expression)
   		aux = "int";
-  	//debug(id);
-  	//debug(aux);
-  	//debug(func[funcID][ind]);
     if(func[funcID][ind++] != aux) {
-      std::cout << "incompatible types in function" << std::endl;
+      std::cout << "Incompatible types in function" << std::endl;
   	  exit(0);
   	}  
   }
@@ -288,7 +268,7 @@ void Variable::semantic() {
     isInt = true;
 		expression->semantic();
 		if(!isInt) {
-			std::cout << "is not an int expression" << std::endl;
+			std::cout << "Is not an int expression" << std::endl;
 			exit(0);
 		}
   }
@@ -298,21 +278,20 @@ void Variable::semantic() {
 
 
 void Assign::semantic() {
-	//printfunc("Assign");
+
   var->semantic();
 	isInt = true;
 	expression->semantic();
 	if(!isInt) {
-		std::cout << "is not an int expression" << std::endl;
+		std::cout << "Is not an int expression" << std::endl;
 		exit(0);
 	}
 } 
 
 void FunctionCall::semantic() {
-	//printfunc("FunctionCall");
 
   if(idOfFunction(id) == -1) {
-    std::cout << "function wasnt declared" << std::endl;
+    std::cout << "Function wasnt declared" << std::endl;
     exit(0);
     return;
   }
@@ -324,11 +303,9 @@ void FunctionCall::semantic() {
   }
 
   ind = 2;
-  //std::cout << "funcID = " << funcID << std::endl;
-  //std::cout << "args size " << args.size() << "       " << " fsize " <<  func[funcID].size()-1 << std::endl;
   int sz = (func[funcID].size()-2 == 1 && func[funcID][2] == "void" ? 0 : func[funcID].size()-2);
   if(args.size() != sz) {
-  	std::cout << "qtd of args different from function" << std::endl;
+  	std::cout << "Qtd of args different from function" << std::endl;
     exit(0);
     funcID = -1;
     return;
@@ -351,10 +328,7 @@ void FunctionCall::semantic() {
 } 
 
 void BinaryOperation::semantic() {
-  //printfunc("BinaryOperation");
   if(funcID != -1 && !isOp) {
-  	//debug(func[funcID][ind]);
-  	//debug(ind);
     if(func[funcID][ind++] != "int") {
       std::cout << "incompatible types in function" << std::endl;
   	  exit(0);
@@ -402,7 +376,6 @@ void exitScope() {
   auto it = scope.end();
   it--;
   while(it->first != "$") {
-    std::cout << it->first << " removed" << std::endl;
     it = scope.erase(it);
     it--;
   }
@@ -443,7 +416,6 @@ std::string isDeclared(std::string x) {
 
 int idOfFunction(std::string x) {
   for(int i = 0; i < func.size(); i++) {
-  	//std::cout << func[i].front() << std::endl;
     if(func[i][1] == x) {
       return i;
     }

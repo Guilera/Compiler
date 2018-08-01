@@ -21,12 +21,14 @@ int main(const int argc, const char **argv) {
 	std::ofstream output(argv[2], std::ios::out);
 		if (output.is_open()) {
 			yyparse();
+			program.semantic();
 			program.codegen(output);
 		} else {
 			std::cout << "Impossible to open file " << argv[2] << std::endl;
 		}
   } else {
     yyparse();
+    program.semantic();
 	program.codegen(std::cout);
   }
 }
