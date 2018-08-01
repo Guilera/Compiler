@@ -425,10 +425,15 @@ void Variable::codegen(std::ostream &os) {
 	if(!isAssignCGen && !isArgCGen) {
 		// pega o indice do parametro em ao relação frame pointer
 		int parameter_index = indexFromFpParamCGen(funcCGen.size() - 1, id);
-		
+		int local_index = indexFromFpLocalCGen(id);
 		// verifica se é um index válido
-		if(parameter_index != -1){
-
+		if(local_index != -1) {
+			if(!expression) {
+				os << "lw $a0 " << local_index << "($fp) " << std::endl;
+			} else if(expression) {
+				os << "addiu $a0 $fp" << local_index << std::endl;
+			}
+		} else if(parameter_index != -1){
 			// se não for um array
 			if(!expression) {
 				os << "lw $a0 " << parameter_index << "($fp)"  << std::endl;
@@ -436,12 +441,6 @@ void Variable::codegen(std::ostream &os) {
 				// se for array load a partir do primeiro endereço
 				os << "addiu $a0 $fp " << parameter_index << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
-			}
-		} else if(indexFromFpLocalCGen(id) != -1) {
-			if(!expression) {
-				os << "lw $a0 " << indexFromFpLocalCGen(id) << "($fp) " << std::endl;
-			} else if(expression) {
-				os << "addiu $a0 $fp" << indexFromFpLocalCGen(id) << std::endl;
 			}
 		}  else {
 			// pertence ao escopo global
@@ -459,18 +458,7 @@ void Variable::codegen(std::ostream &os) {
 	// CASO da variavel sendo passada como argumento de alguma função 
 	} else if(isArgCGen) {
 
-		if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
-
-			if(aux == "int"){
-				// se for argumento e estiver nos parametros e for do tipo int entao carrega o valor presente nos parametros
-				os << "lw $a0 " << indexFromFpParamCGen(funcCGen.size()-1, id) << "($fp) "  << std::endl;
-			} else if(aux == "array") {
-				// se for argumento e for do tipo array entao o valor correspodente lá sera o endereço e deve-se carregar ele e avaliá-lo depois
-				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
-				os << "lw $a0 0($a0)" << std::endl;
-			}
-
-		} else if(indexFromFpLocalCGen(id) != -1) {
+		if(indexFromFpLocalCGen(id) != -1) {
 
 			if(aux == "int") {
 				// se esta no local e é inteiro recupera ele da pilha com index negativo
@@ -479,6 +467,17 @@ void Variable::codegen(std::ostream &os) {
 			else if(aux == "array")	{
 				// se é um vetor pega o endereço de vetor[0] e depois avalia seu offset
 				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
+			}
+
+		} else if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
+
+			if(aux == "int"){
+				// se for argumento e estiver nos parametros e for do tipo int entao carrega o valor presente nos parametros
+				os << "lw $a0 " << indexFromFpParamCGen(funcCGen.size()-1, id) << "($fp) "  << std::endl;
+			} else if(aux == "array") {
+				// se for argumento e for do tipo array entao o valor correspodente lá sera o endereço e deve-se carregar ele e avaliá-lo depois
+				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
+				os << "lw $a0 0($a0)" << std::endl;
 			}
 
 		} else {
@@ -498,7 +497,12 @@ void Variable::codegen(std::ostream &os) {
 	// CASO da variavel sendo atribuida um valor, lhs de uma expressão
 	} else if (isAssignCGen) {
 
-		if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
+		if(indexFromFpLocalCGen(id) != -1) {
+			if(!expression)
+				os << "addiu $a0 " << "$fp " << indexFromFpLocalCGen(id) << std::endl;
+			else
+				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
+		} else if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
 
 			if(!expression){
 				// se esta nos parametros entao retorna o endereço da variavel nos parametros
@@ -509,11 +513,6 @@ void Variable::codegen(std::ostream &os) {
 				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
 			}
-		} else if(indexFromFpLocalCGen(id) != -1) {
-			if(!expression)
-				os << "addiu $a0 " << "$fp " << indexFromFpLocalCGen(id) << std::endl;
-			else
-				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
 		} else {
 			// global scope
 			// se é global então retorna o ponteiro
@@ -523,9 +522,6 @@ void Variable::codegen(std::ostream &os) {
 		
 	}
 
-	
-	// aux = tipo
-	aux = isDeclaredCGen(id);
 	// salva pra n se perder na recursão
 	int saveID = funcIDCGen;
 	if(aux == "array")  {
@@ -611,10 +607,10 @@ void FunctionCall::codegen(std::ostream &os) {
 	
 	// flags
 	int oldIsInt = isIntCGen;
-	isArgCGen = true;
 
 	// push argumentos
 	for(auto it = args.rbegin(); it != args.rend(); it++) {
+		isArgCGen = true;
 		isIntCGen = true;
 		(*it)->codegen(os);
 		PUSH(ACC, os);
