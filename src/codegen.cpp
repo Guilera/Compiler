@@ -197,8 +197,8 @@ void VariableDeclaration::codegen(std::ostream &os) {
 	
 	// se não pertencer a esse escopo, significa que não foi declarada, então declara
 	if(!isInThisScopeCGen(id)) {
-		std::string tipo = (type == INT) ? "int" : "void";
-
+		std::string tipo = (type == INT) ? (num ? "array" :"int") : "void";
+		
 		// se num for diferente de zero, significa que a variavel é um array de tamanho igual 'num', caso contrário é um inteiro
 		int allocation_size = num ? num : 1;
 
@@ -420,6 +420,7 @@ void Variable::codegen(std::ostream &os) {
 	std::string aux = isDeclaredCGen(id);
 	bool globalScope = false;
 
+	// CASO da variavel sendo acessada no rhs de um expressão
 	if(!isAssignCGen && !isArgCGen) {
 		// pega o indice do parametro em ao relação frame pointer
 		int parameter_index = indexFromFpParamCGen(funcCGen.size() - 1, id);
@@ -438,19 +439,23 @@ void Variable::codegen(std::ostream &os) {
 		} else if(indexFromFpLocalCGen(id) != -1) {
 			if(!expression) {
 				os << "lw $a0 " << indexFromFpLocalCGen(id) << "($fp) " << std::endl;
-				}
-				else if(expression) {
+			} else if(expression) {
 				os << "addiu $a0 $fp" << indexFromFpLocalCGen(id) << std::endl;
-				}
+			}
 		}  else {
 			// pertence ao escopo global
-
-			// se é global então retorna o ponteiro
 			globalScope = true;
+		
+			// carrega o endereço da variavel (int ou array[x])
 			os << "la $a0 " << id << std::endl;
+
+			if(aux == "int") {
+				// se não for array então carrega o valor da variavel
+				os << "lw $a0 0($a0)" << std::endl;
+			}
 		}
 		
-
+	// CASO da variavel sendo passada como argumento de alguma função 
 	} else if(isArgCGen) {
 
 		if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
@@ -458,15 +463,10 @@ void Variable::codegen(std::ostream &os) {
 			if(aux == "int"){
 				// se for argumento e estiver nos parametros e for do tipo int entao carrega o valor presente nos parametros
 				os << "lw $a0 " << indexFromFpParamCGen(funcCGen.size()-1, id) << "($fp) "  << std::endl;
-			}
-			else if(aux == "array") {
+			} else if(aux == "array") {
 				// se for argumento e for do tipo array entao o valor correspodente lá sera o endereço e deve-se carregar ele e avaliá-lo depois
 				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
-				if(!expression) {
-					// se foi chamado o ponteiro, então retorna ele
-					PUSH(ACC, os);       
-				}
 			}
 
 		} else if(indexFromFpLocalCGen(id) != -1) {
@@ -482,11 +482,19 @@ void Variable::codegen(std::ostream &os) {
 
 		} else {
 			// global scope
-			// se é global então retorna o ponteiro
 			globalScope = true;
+			
+			// carrega o endereço da variavel (int ou array[x])
 			os << "la $a0 " << id << std::endl;
+
+			// se não tem expression e for do tipo int retornar o valor da variavel
+			if(!expression && aux == "int") {
+				// carrega o valor da variavel
+				os << "lw $a0 0($a0)" << std::endl;
+			}
 		}
 
+	// CASO da variavel sendo atribuida um valor, lhs de uma expressão
 	} else if (isAssignCGen) {
 
 		if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
@@ -537,8 +545,7 @@ void Variable::codegen(std::ostream &os) {
 		if(globalScope) {
 			// se é global o offset é igual a posição * 4
 			LOAD_IMMEDIATE(TEMP, 4, os);
-		}
-		else {
+		} else {
 			// se é local o offset é igual a posição * -4
 			LOAD_IMMEDIATE(TEMP, -4, os);
 		}
@@ -555,7 +562,6 @@ void Variable::codegen(std::ostream &os) {
 	}
 
 	funcIDCGen = saveID;
-
 }
 
 void Assign::codegen(std::ostream &os) {
@@ -579,7 +585,7 @@ void Assign::codegen(std::ostream &os) {
 	TOP(TEMP, os);
 	POP(os);
 
-	// assingment
+	// assignment
 	os << "sw $t0 0($a0)" << std::endl;
 	os << "addiu $a0 $t0 0" << std::endl;
 

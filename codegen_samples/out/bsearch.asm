@@ -42,6 +42,7 @@ addiu $sp $sp -4
 addiu $sp $sp -4
 addiu $sp $sp -4
 la $a0 MX
+lw $a0 0($a0)
 sw $a0 0($sp)
 addiu $sp $sp -4
 addiu $a0 $fp -8
