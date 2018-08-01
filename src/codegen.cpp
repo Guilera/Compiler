@@ -492,9 +492,11 @@ void Variable::codegen(std::ostream &os) {
 		if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
 
 			if(!expression){
+				// se esta nos parametros entao retorna o endereço da variavel nos parametros
 				os << "addiu $a0 " << "$fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 			}
 			else if(expression) {
+				// se é um vetor e esta nos parametros
 				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
 			}
@@ -512,38 +514,43 @@ void Variable::codegen(std::ostream &os) {
 		
 	}
 
-	if(funcIDCGen != -1 && !isOpCGen) {
-		if(aux == "array" && expression)
-			aux = "int";
-	}
 	
+	// aux = tipo
 	aux = isDeclaredCGen(id);
+	// salva pra n se perder na recursão
 	int saveID = funcIDCGen;
 	if(aux == "array")  {
 		funcIDCGen = -1;
 	}
 
 	if(expression) {
+		// se é um vetor, entao avalia-se o offset
 		isIntCGen = true;
 		PUSH(ACC, os);
-		bool saveAss = isAssignCGen, saveArg = isArgCGen;
+		bool saveAssign = isAssignCGen, saveArg = isArgCGen;
 		isAssignCGen = false; 
 		isArgCGen = false;
+		// avalia a expressao
 		expression->codegen(os);
-		isAssignCGen = saveAss; 
-		isArgCGen = saveArg;
+		isAssignCGen = saveAssign; 
 		
-		if(globalScope)
+		if(globalScope) {
+			// se é global o offset é igual a posição * 4
 			LOAD_IMMEDIATE(TEMP, 4, os);
-		else
+		}
+		else {
+			// se é local o offset é igual a posição * -4
 			LOAD_IMMEDIATE(TEMP, -4, os);
+		}
 		
 		os << "mul $a0 $a0 $t0" << std::endl;
 		TOP(TEMP, os);
 		POP(os);
+		// retorna o endereço da variável
 		os << "add $a0 $a0 $t0" << std::endl;
 		if(!isAssignCGen) {
-		os << "lw $a0 0($a0)" << std::endl;
+			// se não é um caso de assign (vai armazenar no endereço depois) retorna o valor
+			os << "lw $a0 0($a0)" << std::endl;
 		}
 	}
 
@@ -590,14 +597,8 @@ void FunctionCall::codegen(std::ostream &os) {
 	// push frame pointer
 	PUSH(FP, os);
 
-	// TODO: explicar
 	indCGen = 2;
-	int sz = (funcCGen[funcIDCGen].size()-2 == 1 && funcCGen[funcIDCGen][2] == "void" ? 0 : funcCGen[funcIDCGen].size()-2);
-	if(args.size() != sz) {
-		funcIDCGen = -1;
-		return;
-	}
-
+	
 	// flags
 	int oldIsInt = isIntCGen;
 	isArgCGen = true;
@@ -673,12 +674,20 @@ void BinaryOperation::codegen(std::ostream &os) {
 			os << "slt $a0 $a0 $t0" << std::endl;
 			os << "xori $a0 $a0 1" << std::endl;
 		} else if(op == ">") {
+			// inverso do <
+			// retorna t0 > a0
 			os << "slt $a0 $a0 $t0" << std::endl;
 		} else if(op == ">=") {
+			// se t0 < a0 -> a0 = 1, caso t0 >= a0 -> a0 = 0
+			// o xori inverte os bits, ou seja, se a0 = 1 -> a0 = 0 e vice-versa
 			os << "slt $a0 $t0 $a0" << std::endl;  		
 			os << "xori $a0 $a0 1" << std::endl;
 		} else if(op == "!=") {
+			// objetivo 
+			// a0 = t0 - a0
 			os << "sub $a0 $t0 $a0" << std::endl;
+			// se a0 > 0 ou a0 < 0 então 0 < |a0| é verdadeiro, ou seja, a0 != 0;	a0 <- 1
+			// caso contrario a0 == 0 então 0 < 0 é falso, ou seja, a0 == 0;		a0 <- 0
 			os << "sltu $a0 $0 $a0" << std::endl;
 		}
 	}
@@ -694,6 +703,7 @@ void Number::codegen(std::ostream &os) {
 
 
 void createScopeCGen(bool isArgument) {
+
 	scopeCGen.push_back(ss("$","$",isArgument));
 }
 
