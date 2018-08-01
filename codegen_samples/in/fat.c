@@ -5,7 +5,7 @@ int fat(int n) {
     return n * fat(n - 1);
 }
 
-int main(void) {
+void main(void) {
   int x;
   x = fat(5);
   println(x);

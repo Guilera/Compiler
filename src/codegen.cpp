@@ -444,17 +444,12 @@ void Variable::codegen(std::ostream &os) {
 				}
 		}  else {
 			// pertence ao escopo global
-			globalScope = true;
 
-		if(!expression) {
-			// se for um vetor global sem offset entao carrega o seu endereço
-			os << "la $a0 " << id << std::endl;
-			os << "lw $a0 0($a0)" << std::endl;
-		} else {
-			// se for um vetor global entao carrega o seu endereço
+			// se é global então retorna o ponteiro
+			globalScope = true;
 			os << "la $a0 " << id << std::endl;
 		}
-		}
+		
 
 	} else if(isArgCGen) {
 
@@ -469,27 +464,27 @@ void Variable::codegen(std::ostream &os) {
 				os << "addiu $a0 $fp " << indexFromFpParamCGen(funcCGen.size()-1, id) << std::endl;
 				os << "lw $a0 0($a0)" << std::endl;
 				if(!expression) {
-					// se foi chamado o ponteiro, então 
+					// se foi chamado o ponteiro, então retorna ele
 					PUSH(ACC, os);       
 				}
 			}
 
 		} else if(indexFromFpLocalCGen(id) != -1) {
 
-			if(aux == "int")
+			if(aux == "int") {
+				// se esta no local e é inteiro recupera ele da pilha com index negativo
 				os << "lw $a0 " << indexFromFpLocalCGen(id) << "($fp) " << std::endl;
-			else if(aux == "array")				
+			}
+			else if(aux == "array")	{
+				// se é um vetor pega o endereço de vetor[0] e depois avalia seu offset
 				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
+			}
 
 		} else {
 			// global scope
+			// se é global então retorna o ponteiro
 			globalScope = true;
-			if(!expression) {
-				os << "la $a0 " << id << std::endl;
-				os << "lw $a0 0($a0)" << std::endl;
-			} else {
-				os << "la $a0 " << id << std::endl;
-			}
+			os << "la $a0 " << id << std::endl;
 		}
 
 	} else if (isAssignCGen) {
@@ -510,11 +505,9 @@ void Variable::codegen(std::ostream &os) {
 				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
 		} else {
 			// global scope
+			// se é global então retorna o ponteiro
 			globalScope = true;
-			if(!expression)
-				os << "la $a0 " << id << std::endl;
-			else
-				os << "la $a0 " << id << std::endl;
+			os << "la $a0 " << id << std::endl;
 		}
 		
 	}
@@ -712,7 +705,6 @@ void exitScopeCGen(std::ostream &os, bool cameFromF) {
 	auto it = scopeCGen.end();
 	it--;
 	while(it->id != "$") {
-		os << "# " << it->id << " removed" << std::endl;
 		std::string toDelete = it->id;
 		it = scopeCGen.erase(it);
 		it--;

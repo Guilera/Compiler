@@ -1,7 +1,10 @@
 .text
 
 main: 
-j _main
+jal _main
+
+li $v0 10
+syscall
 
 _input:
 move $fp $sp
@@ -11,42 +14,44 @@ li $v0 5
 syscall 
 move $a0 $v0
 lw $ra 4($sp)
-addiu $sp $sp 8
-lw $fp 0($sp)
+addiu $sp $sp 4
+lw $fp 4($sp)
+addiu $sp $sp 4
 jr $ra
 
 _println:
 move  $fp  $sp
 sw $ra 0($sp)
 addiu $sp $sp -4
-li $v0 1
 lw $a0 4($fp)
+li $v0 1
 syscall
 addi $a0, $0, 0xA
 addi $v0, $0, 0xB
 syscall
 lw $ra 4($sp)
-addiu $sp $sp 12
-lw $fp 0($sp)
+addiu $sp $sp 8
+lw $fp 4($sp)
+addiu $sp $sp 4
 jr $ra
 
 _alpha:
-move  $fp  $sp
+move $fp $sp
 sw $ra 0($sp)
 addiu $sp $sp -4
-# id = m
-lw $a0 8($fp) 
+lw $a0 8($fp)
 sw $a0 0($sp)
 addiu $sp $sp -4
 li $a0 0
 lw $t0 4($sp)
 addiu $sp $sp 4
-beq $t0 $a0 _true_branch_0
-_false_branch_0:
+sub $a0 $t0 $a0
+sltu $a0 $0 $a0
+xori $a0 $a0 1
+bne $0 $a0 _begin_if_0
 j _end_if_0
-_true_branch_0:
-# id = n
-lw $a0 4($fp) 
+_begin_if_0:
+lw $a0 4($fp)
 sw $a0 0($sp)
 addiu $sp $sp -4
 li $a0 1
@@ -54,22 +59,21 @@ lw $t0 4($sp)
 addiu $sp $sp 4
 add $a0  $t0  $a0
 j _end_function_alpha
-# saveCome = 0
 _end_if_0:
-# id = n
-lw $a0 4($fp) 
+lw $a0 4($fp)
 sw $a0 0($sp)
 addiu $sp $sp -4
 li $a0 0
 lw $t0 4($sp)
 addiu $sp $sp 4
-beq $t0 $a0 _true_branch_1
-_false_branch_1:
+sub $a0 $t0 $a0
+sltu $a0 $0 $a0
+xori $a0 $a0 1
+bne $0 $a0 _begin_if_1
 j _end_if_1
-_true_branch_1:
+_begin_if_1:
 sw $fp 0($sp)
 addiu $sp $sp -4
-# id = m
 lw $a0 8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -84,11 +88,9 @@ sw $a0 0($sp)
 addiu $sp $sp -4
 jal _alpha
 j _end_function_alpha
-# saveCome = 0
 _end_if_1:
 sw $fp 0($sp)
 addiu $sp $sp -4
-# id = m
 lw $a0 8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -100,11 +102,9 @@ sw $a0 0($sp)
 addiu $sp $sp -4
 sw $fp 0($sp)
 addiu $sp $sp -4
-# id = m
 lw $a0 8($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-# id = n
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -119,31 +119,27 @@ sw $a0 0($sp)
 addiu $sp $sp -4
 jal _alpha
 j _end_function_alpha
-# saveCome = 1
 _end_function_alpha:
 addiu $sp $sp 0
 lw $ra 4($sp)
-addiu $sp $sp 8
-# m removed
 addiu $sp $sp 4
-# n removed
 addiu $sp $sp 4
-lw  $fp  0($sp)
+addiu $sp $sp 4
+lw $fp 4($sp)
+addiu $sp $sp 4
 jr $ra
 
 _solve:
-move  $fp  $sp
+move $fp $sp
 sw $ra 0($sp)
 addiu $sp $sp -4
 sw $fp 0($sp)
 addiu $sp $sp -4
 sw $fp 0($sp)
 addiu $sp $sp -4
-# id = x
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
-# id = x
 lw $a0 4($fp) 
 sw $a0 0($sp)
 addiu $sp $sp -4
@@ -151,18 +147,17 @@ jal _alpha
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _println
-# saveCome = 1
 _end_function_solve:
 addiu $sp $sp 0
 lw $ra 4($sp)
-addiu $sp $sp 8
-# x removed
 addiu $sp $sp 4
-lw  $fp  0($sp)
+addiu $sp $sp 4
+lw $fp 4($sp)
+addiu $sp $sp 4
 jr $ra
 
 _main:
-move  $fp  $sp
+move $fp $sp
 sw $ra 0($sp)
 addiu $sp $sp -4
 sw $fp 0($sp)
@@ -183,13 +178,13 @@ li $a0 2
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _solve
-# saveCome = 1
 _end_function_main:
 addiu $sp $sp 0
 lw $ra 4($sp)
-addiu $sp $sp 8
-li $v0 10
-syscall
+addiu $sp $sp 4
+lw $fp 4($sp)
+addiu $sp $sp 4
+jr $ra
 
 
 .data

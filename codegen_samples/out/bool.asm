@@ -1,7 +1,10 @@
 .text
 
 main: 
-j _main
+jal _main
+
+li $v0 10
+syscall
 
 _input:
 move $fp $sp
@@ -11,27 +14,29 @@ li $v0 5
 syscall 
 move $a0 $v0
 lw $ra 4($sp)
-addiu $sp $sp 8
-lw $fp 0($sp)
+addiu $sp $sp 4
+lw $fp 4($sp)
+addiu $sp $sp 4
 jr $ra
 
 _println:
 move  $fp  $sp
 sw $ra 0($sp)
 addiu $sp $sp -4
-li $v0 1
 lw $a0 4($fp)
+li $v0 1
 syscall
 addi $a0, $0, 0xA
 addi $v0, $0, 0xB
 syscall
 lw $ra 4($sp)
-addiu $sp $sp 12
-lw $fp 0($sp)
+addiu $sp $sp 8
+lw $fp 4($sp)
+addiu $sp $sp 4
 jr $ra
 
 _main:
-move  $fp  $sp
+move $fp $sp
 sw $ra 0($sp)
 addiu $sp $sp -4
 sw $fp 0($sp)
@@ -232,13 +237,13 @@ add $a0  $t0  $a0
 sw $a0 0($sp)
 addiu $sp $sp -4
 jal _println
-# saveCome = 1
 _end_function_main:
 addiu $sp $sp 0
 lw $ra 4($sp)
-addiu $sp $sp 8
-li $v0 10
-syscall
+addiu $sp $sp 4
+lw $fp 4($sp)
+addiu $sp $sp 4
+jr $ra
 
 
 .data
