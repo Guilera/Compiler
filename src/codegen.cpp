@@ -63,10 +63,10 @@ struct variable {
 
 std::vector<variable> localDec; // id of variables as local of current function and its size
 std::vector<variable> paramDec; // id of variables as parameter of current function and its size 
+std::vector<variable> globalVar;
 std::vector<std::vector<std::string> > funcCGen;
 std::list<ss> scopeCGen;
 std::string nextBranch;
-std::vector<variable> globalVar;
 bool isArgCGen = false;
 bool isOpCGen = false;
 bool nextCGen = false;
@@ -91,6 +91,7 @@ int idOfFunctionCGen(std::string x);
 std::string getTypeCGen(int id);
 int indexFromFpParamCGen(int funcIDCGen, std::string var);
 int indexFromFpLocalCGen(std::string var);
+int getVariableSize(std::string id);
 
 //-----------------------------------------------------------------------------------
 
@@ -420,17 +421,19 @@ void Variable::codegen(std::ostream &os) {
 
 	std::string aux = isDeclaredCGen(id);
 	bool globalScope = false;
-
+	int variable_size = getVariableSize(id);
 	// CASO da variavel sendo acessada no rhs de um expressão
 	if(!isAssignCGen && !isArgCGen) {
 		// pega o indice do parametro em ao relação frame pointer
 		int parameter_index = indexFromFpParamCGen(funcCGen.size() - 1, id);
-		int local_index = indexFromFpLocalCGen(id);
+		int local_index = indexFromFpLocalCGen(id) + (variable_size - 1) * 4;
 		// verifica se é um index válido
 		if(local_index != -1) {
 			if(!expression) {
+				// inteiro
 				os << "lw $a0 " << local_index << "($fp) " << std::endl;
 			} else if(expression) {
+				// array
 				os << "addiu $a0 $fp" << local_index << std::endl;
 			}
 		} else if(parameter_index != -1){
@@ -466,7 +469,7 @@ void Variable::codegen(std::ostream &os) {
 			}
 			else if(aux == "array")	{
 				// se é um vetor pega o endereço de vetor[0] e depois avalia seu offset
-				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
+				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) + (variable_size - 1) * 4  << std::endl;
 			}
 
 		} else if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
@@ -501,7 +504,7 @@ void Variable::codegen(std::ostream &os) {
 			if(!expression)
 				os << "addiu $a0 " << "$fp " << indexFromFpLocalCGen(id) << std::endl;
 			else
-				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
+				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) + (variable_size - 1) * 4 << std::endl;
 		} else if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
 
 			if(!expression){
@@ -544,14 +547,10 @@ void Variable::codegen(std::ostream &os) {
 		os << "bltz $a0, _end_program" << std::endl;
 		isAssignCGen = saveAssign; 
 		
-		if(globalScope) {
-			// se é global o offset é igual a posição * 4
-			LOAD_IMMEDIATE(TEMP, 4, os);
-		} else {
-			// se é local o offset é igual a posição * -4
-			LOAD_IMMEDIATE(TEMP, -4, os);
-		}
+		// carrega offset de deslocamento de index
+		LOAD_IMMEDIATE(TEMP, 4, os);
 		
+		// calculo index a ser acessado
 		os << "mul $a0 $a0 $t0" << std::endl;
 		TOP(TEMP, os);
 		POP(os);
@@ -821,7 +820,7 @@ int indexFromFpParamCGen(int lastFunc, std::string variable_name) {
 }
 
 int indexFromFpLocalCGen(std::string var) {
-
+	
 	int count = 4;
 	for(auto local : localDec) {
 		count += local.size*4;
@@ -834,4 +833,19 @@ int indexFromFpLocalCGen(std::string var) {
 	}
 
 	return -1;
+}
+
+int getVariableSize(std::string id) {
+	for(auto v : localDec)
+		if(v.name == id)
+			return v.size;
+	
+	for(auto v : paramDec)
+		if(v.name == id)
+			return v.size;	
+	
+	for(auto v : globalVar)
+		if(v.name == id)
+			return v.size;
+
 }
