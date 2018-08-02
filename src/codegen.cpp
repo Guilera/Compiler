@@ -426,7 +426,7 @@ void Variable::codegen(std::ostream &os) {
 	if(!isAssignCGen && !isArgCGen) {
 		// pega o indice do parametro em ao relação frame pointer
 		int parameter_index = indexFromFpParamCGen(funcCGen.size() - 1, id);
-		int local_index = indexFromFpLocalCGen(id) + (variable_size - 1) * 4;
+		int local_index = indexFromFpLocalCGen(id);
 		// verifica se é um index válido
 		if(local_index != -1) {
 			if(!expression) {
@@ -463,13 +463,14 @@ void Variable::codegen(std::ostream &os) {
 
 		if(indexFromFpLocalCGen(id) != -1) {
 
+			debug(id);
 			if(aux == "int") {
 				// se esta no local e é inteiro recupera ele da pilha com index negativo
 				os << "lw $a0 " << indexFromFpLocalCGen(id) << "($fp) " << std::endl;
 			}
 			else if(aux == "array")	{
 				// se é um vetor pega o endereço de vetor[0] e depois avalia seu offset
-				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) + (variable_size - 1) * 4  << std::endl;
+				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
 			}
 
 		} else if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
@@ -504,7 +505,7 @@ void Variable::codegen(std::ostream &os) {
 			if(!expression)
 				os << "addiu $a0 " << "$fp " << indexFromFpLocalCGen(id) << std::endl;
 			else
-				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) + (variable_size - 1) * 4 << std::endl;
+				os << "addiu $a0 $fp " << indexFromFpLocalCGen(id) << std::endl;
 		} else if(indexFromFpParamCGen(funcCGen.size()-1, id) != -1){
 
 			if(!expression){
@@ -820,20 +821,21 @@ int indexFromFpParamCGen(int lastFunc, std::string variable_name) {
 }
 
 int indexFromFpLocalCGen(std::string var) {
-	
+
 	int count = 4;
 	for(auto local : localDec) {
 		count += local.size*4;
 	}
-	
+
 	for(int i = localDec.size()-1; i >= 0; i--) {
-		count -= localDec[i].size*4;
 		if(localDec[i].name == var) 
-			return -count;
+			return -count + 4;
+		count -= localDec[i].size*4;
 	}
 
 	return -1;
 }
+
 
 int getVariableSize(std::string id) {
 	for(auto v : localDec)
